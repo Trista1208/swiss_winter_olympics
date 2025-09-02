@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 """
-Swiss Olympic Multi-Sport Team Selection Dashboard - FINAL VERSION
-Shows athlete names organized by sport categories with qualification status
+Swiss Olympic Multi-Sport Team Selection Dashboard - Interactive Search & Filter Version
+Search athletes by name, filter by sport and gender, view qualification status
 """
 
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 from datetime import datetime
-import numpy as np
 
 # Import our analysis modules
 from multi_sport_qualification_checker import MultiSportQualificationChecker
@@ -22,263 +20,280 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Modern, highly visible CSS
+# Black theme CSS with high visibility
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    
+    /* Main app background */
     .stApp {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        font-family: 'Inter', sans-serif;
+        background-color: #000000;
+        color: #ffffff;
     }
     
+    /* Main header */
     .main-header {
-        font-size: 4.5rem;
-        font-weight: 900;
-        color: #ffffff;
-        text-align: center;
-        margin-bottom: 1rem;
-        text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
-        background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
-        background-size: 300% 300%;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: gradientShift 4s ease infinite;
-        line-height: 1.1;
-    }
-    
-    @keyframes gradientShift {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-    
-    .subtitle {
-        font-size: 1.8rem;
-        color: #ffffff;
-        text-align: center;
-        margin-bottom: 3rem;
-        font-weight: 600;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-        opacity: 0.95;
-    }
-    
-    .sport-category {
-        background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
-        padding: 2rem;
-        border-radius: 20px;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-        margin: 2rem 0;
-        border-left: 6px solid #667eea;
-        transition: all 0.3s ease;
-    }
-    
-    .sport-category:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-    }
-    
-    .sport-title {
-        font-size: 2rem;
-        font-weight: 800;
-        margin-bottom: 1rem;
-        color: #2c3e50;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-    
-    .sport-emoji {
         font-size: 2.5rem;
-    }
-    
-    .sport-stats {
-        display: flex;
-        gap: 2rem;
-        margin-bottom: 1.5rem;
-        padding: 1rem;
-        background: rgba(0,0,0,0.05);
-        border-radius: 10px;
-    }
-    
-    .stat-item {
+        font-weight: 700;
+        color: #ffffff;
         text-align: center;
-    }
-    
-    .stat-number {
-        font-size: 2rem;
-        font-weight: 800;
-        color: #2c3e50;
-        display: block;
-    }
-    
-    .stat-label {
-        font-size: 0.9rem;
-        color: #6c757d;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-    
-    .athletes-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1rem;
-        margin-top: 1rem;
-    }
-    
-    .athlete-card {
-        background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+        margin-bottom: 2rem;
         padding: 1.5rem;
-        border-radius: 15px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        border-left: 4px solid #28a745;
-        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(255,255,255,0.2);
+        border: 2px solid #333333;
     }
     
-    .athlete-card.not-qualified {
-        border-left-color: #dc3545;
+    /* Sidebar styling */
+    .css-1d391kg {
+        background-color: #1a1a1a;
+    }
+    
+    /* Sidebar text */
+    .css-1d391kg .stMarkdown {
+        color: #ffffff;
+    }
+    
+    /* Athlete cards */
+    .athlete-card {
+        background: #1a1a1a;
+        border: 2px solid #333333;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(255,255,255,0.1);
+        transition: all 0.3s ease;
     }
     
     .athlete-card:hover {
+        box-shadow: 0 4px 15px rgba(255,255,255,0.2);
         transform: translateY(-2px);
-        box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        border-color: #4ecdc4;
     }
     
     .athlete-name {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 0.5rem;
-    }
-    
-    .athlete-status {
-        display: inline-block;
-        padding: 0.3rem 0.8rem;
-        border-radius: 15px;
+        font-size: 1.3rem;
         font-weight: 600;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        margin-bottom: 0.5rem;
-    }
-    
-    .qualified-status {
-        background: linear-gradient(45deg, #28a745, #20c997);
-        color: white;
-    }
-    
-    .not-qualified-status {
-        background: linear-gradient(45deg, #dc3545, #c82333);
-        color: white;
-    }
-    
-    .athlete-routes {
-        font-size: 0.85rem;
-        color: #6c757d;
-        margin-top: 0.5rem;
-    }
-    
-    .section-header {
-        font-size: 3rem;
-        font-weight: 800;
         color: #ffffff;
-        margin: 3rem 0 2rem 0;
-        text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
-        text-align: center;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-    }
-    
-    .metric-card {
-        background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
-        padding: 2.5rem;
-        border-radius: 20px;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
-        text-align: center;
-        transition: all 0.3s ease;
-    }
-    
-    .metric-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-    }
-    
-    .metric-card h2 {
-        color: #2c3e50;
-        font-size: 3rem;
         margin-bottom: 0.5rem;
-        font-weight: 800;
     }
     
-    .metric-card p {
-        color: #6c757d;
-        font-size: 1.1rem;
-        margin: 0;
+    .athlete-details {
+        color: #cccccc;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Qualification status badges */
+    .qualification-status {
         font-weight: 600;
-        text-transform: uppercase;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        display: inline-block;
+        font-size: 0.9rem;
+        margin-right: 0.5rem;
+    }
+    
+    .qualified {
+        background: #28a745;
+        color: #ffffff;
+        border: 1px solid #28a745;
+    }
+    
+    .not-qualified {
+        background: #dc3545;
+        color: #ffffff;
+        border: 1px solid #dc3545;
+    }
+    
+    /* Stats container */
+    .stats-container {
+        background: #1a1a1a;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(255,255,255,0.1);
+        margin-bottom: 2rem;
+        border: 2px solid #333333;
+    }
+    
+    .stats-container h3 {
+        color: #ffffff;
+    }
+    
+    /* No results message */
+    .no-results {
+        text-align: center;
+        color: #cccccc;
+        font-style: italic;
+        padding: 3rem;
+        background: #1a1a1a;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(255,255,255,0.1);
+        border: 2px solid #333333;
+    }
+    
+    /* Streamlit metric containers */
+    div[data-testid="metric-container"] {
+        background: #1a1a1a;
+        border: 2px solid #333333;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(255,255,255,0.1);
+    }
+    
+    div[data-testid="metric-container"] > div {
+        color: #4ecdc4 !important;
+    }
+    
+    div[data-testid="metric-container"] label {
+        color: #ffffff !important;
+    }
+    
+    /* Streamlit dataframes */
+    .stDataFrame {
+        background: #1a1a1a;
+        border-radius: 8px;
+        padding: 1rem;
+        border: 2px solid #333333;
+    }
+    
+    /* Expander styling */
+    .streamlit-expanderHeader {
+        background: #1a1a1a !important;
+        color: #ffffff !important;
+        border: 2px solid #333333 !important;
+    }
+    
+    .streamlit-expanderContent {
+        background: #1a1a1a !important;
+        border: 2px solid #333333 !important;
+    }
+    
+    /* Text colors */
+    .stMarkdown {
+        color: #ffffff;
+    }
+    
+    /* Input fields */
+    .stTextInput input {
+        background-color: #1a1a1a !important;
+        color: #ffffff !important;
+        border: 2px solid #333333 !important;
+    }
+    
+    .stSelectbox select {
+        background-color: #1a1a1a !important;
+        color: #ffffff !important;
+        border: 2px solid #333333 !important;
+    }
+    
+    .stMultiSelect {
+        background-color: #1a1a1a !important;
+    }
+    
+    /* Labels */
+    .stTextInput label, .stSelectbox label, .stMultiSelect label {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Sidebar headers */
+    .css-1d391kg h1, .css-1d391kg h2, .css-1d391kg h3 {
+        color: #ffffff !important;
+    }
+    
+    /* Success/error colors on dark background */
+    .stSuccess {
+        background-color: #155724 !important;
+        color: #ffffff !important;
+    }
+    
+    .stError {
+        background-color: #721c24 !important;
+        color: #ffffff !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
 @st.cache_data
 def load_all_sports_data():
-    """Load and process all sports data"""
+    """Load and return the complete dataset"""
     try:
-        # Load raw data
-        df = pd.read_csv("data/Results_Test_Version.csv", sep=';', encoding='utf-8')
+        # Load CSV with semicolon separator and clean column names
+        df = pd.read_csv('data/Results_Test_Version.csv', sep=';', encoding='utf-8')
         df.columns = df.columns.str.strip('"')
-        
-        # Clean and process data
-        df['Date'] = pd.to_datetime(df['Date'], format='%Y/%m/%d %H:%M:%S', errors='coerce')
-        df['Rank_Clean'] = pd.to_numeric(df['Rank'].str.extract(r'(\d+)')[0], errors='coerce')
         
         # Filter for Swiss athletes only
         df = df[df['Nationality'] == 'SUI'].copy()
         
+        # Clean and process the data
+        if 'Date' in df.columns:
+            df['Date'] = pd.to_datetime(df['Date'], format='%Y/%m/%d %H:%M:%S', errors='coerce')
+        
+        # Clean rank column - this is essential for qualification checker
+        if 'Rank' in df.columns:
+            df['Rank_Clean'] = df['Rank'].astype(str).str.extract(r'(\d+)')[0]
+            df['Rank_Clean'] = pd.to_numeric(df['Rank_Clean'], errors='coerce')
+        else:
+            df['Rank_Clean'] = pd.Series([None] * len(df))
+        
+        # Use 'Person' column as 'Name' for consistency
+        if 'Person' in df.columns:
+            df['Name'] = df['Person']
+        else:
+            df['Name'] = pd.Series(['Unknown'] * len(df))
+        
+        # Use 'PersonGender' as 'Gender'
+        if 'PersonGender' in df.columns:
+            df['Gender'] = df['PersonGender']
+        else:
+            df['Gender'] = pd.Series(['Unknown'] * len(df))
+        
         return df
     except Exception as e:
         st.error(f"Error loading data: {e}")
-        return None
+        return pd.DataFrame()
 
 @st.cache_data
-def get_multi_sport_qualification_results(df):
-    """Get qualification results for all athletes across all sports"""
+def get_multi_sport_qualification_results(_checker, df):
+    """Get qualification results for all sports"""
     try:
-        checker = MultiSportQualificationChecker(df)
         results = {}
         sport_summaries = {}
         
-        # Get all sports
-        sports = df['Sport'].unique()
+        # Get all sports in the dataset
+        all_sports = df['Sport'].unique() if 'Sport' in df.columns else []
         
-        for sport in sports:
-            sport_athletes = df[df['Sport'] == sport]['Person'].unique()
-            qualified_athletes = []
-            sport_athlete_details = {}
-            
-            for athlete in sport_athletes:
-                if pd.notna(athlete):
-                    athlete_qual = checker.check_athlete_qualification(athlete)
+        for sport in all_sports:
+            sport_athletes = df[df['Sport'] == sport]
+            if len(sport_athletes) > 0:
+                qualified_count = 0
+                sport_results = {}
+                
+                for athlete in sport_athletes['Name'].unique():
+                    athlete_data = sport_athletes[sport_athletes['Name'] == athlete]
                     
-                    if athlete_qual and not athlete_qual.get('error'):
-                        sport_qual = athlete_qual['sports_qualifications'].get(sport, {})
+                    # Get qualification result using the checker's method
+                    qual_result = _checker.check_athlete_qualification(athlete)
+                    
+                    # Check if athlete qualified for this specific sport
+                    is_qualified = False
+                    if qual_result and not qual_result.get('error'):
+                        sport_qual = qual_result.get('sports_qualifications', {}).get(sport, {})
                         is_qualified = sport_qual.get('qualified', False)
-                        qualified_routes = sport_qual.get('qualified_routes', [])
-                        
-                        sport_athlete_details[athlete] = {
-                            'qualified': is_qualified,
-                            'routes': qualified_routes,
-                            'sport': sport
-                        }
-                        
-                        if is_qualified:
-                            qualified_athletes.append(athlete)
-                            results[athlete] = athlete_qual
+                    
+                    sport_results[athlete] = {
+                        'qualified': is_qualified,
+                        'routes': qual_result,
+                        'data': athlete_data
+                    }
+                    
+                    if is_qualified:
+                        qualified_count += 1
             
+                results[sport] = sport_results
             sport_summaries[sport] = {
-                'total': len(sport_athletes),
-                'qualified': len(qualified_athletes),
-                'qualified_names': qualified_athletes,
-                'all_athletes': sport_athlete_details
+                    'total_athletes': len(sport_athletes['Name'].unique()),
+                    'qualified': qualified_count,
+                    'qualification_rate': (qualified_count / len(sport_athletes['Name'].unique())) * 100
             }
         
         return results, sport_summaries
@@ -286,278 +301,315 @@ def get_multi_sport_qualification_results(df):
         st.error(f"Error getting qualification results: {e}")
         return {}, {}
 
-def get_sport_emoji(sport):
-    """Get emoji for each sport"""
-    sport_emojis = {
-        'Biathlon': '🎯',
-        'Alpine Skiing': '⛷️',
-        'Cross-Country Skiing': '🎿',
-        'Freestyle Skiing': '🤸',
-        'Bobsleigh': '🛷',
-        'Figure Skating': '⛸️'
-    }
-    return sport_emojis.get(sport, '🏔️')
-
-def display_sport_category(sport, sport_data):
-    """Display a complete sport category with all athletes"""
-    emoji = get_sport_emoji(sport)
-    qualification_rate = (sport_data['qualified'] / sport_data['total'] * 100) if sport_data['total'] > 0 else 0
+def create_athlete_card(athlete_name, athlete_info, sport):
+    """Create a card display for an athlete"""
+    is_qualified = athlete_info['qualified']
+    athlete_data = athlete_info['data'].iloc[0] if len(athlete_info['data']) > 0 else {}
     
-    # Sport category container
+    # Get gender if available
+    gender = athlete_data.get('Gender', 'N/A')
+    
+    # Count qualified routes from the sport qualification data
+    qualified_routes = 0
+    routes_info = athlete_info.get('routes', {})
+    if routes_info and not routes_info.get('error'):
+        sport_qual = routes_info.get('sports_qualifications', {}).get(sport, {})
+        if sport_qual:
+            qualified_routes = len(sport_qual.get('qualified_routes', []))
+    
+    status_class = "qualified" if is_qualified else "not-qualified"
+    status_text = "✅ QUALIFIED" if is_qualified else "❌ Not Qualified"
+    
     st.markdown(f"""
-    <div class="sport-category">
-        <div class="sport-title">
-            <span class="sport-emoji">{emoji}</span>
-            <span>{sport.upper()}</span>
+    <div class="athlete-card">
+        <div class="athlete-name">{athlete_name}</div>
+        <div class="athlete-details">
+            <strong>Sport:</strong> {sport} | <strong>Gender:</strong> {gender}
         </div>
-        
-        <div class="sport-stats">
-            <div class="stat-item">
-                <span class="stat-number">{sport_data['total']}</span>
-                <div class="stat-label">Total Athletes</div>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number">{sport_data['qualified']}</span>
-                <div class="stat-label">Qualified</div>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number">{qualification_rate:.1f}%</span>
-                <div class="stat-label">Success Rate</div>
-            </div>
+        <div class="athlete-details">
+            <strong>Qualified Routes:</strong> {qualified_routes}/5
         </div>
+        <span class="qualification-status {status_class}">{status_text}</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+def display_detailed_athlete_profile(athlete_name, df, qualification_results):
+    """Display comprehensive athlete profile with recent activities and qualification details"""
+    
+    st.markdown(f"""
+    <div class="main-header">
+        👤 {athlete_name} - Detailed Profile
     </div>
     """, unsafe_allow_html=True)
     
-    # Athletes grid
-    athletes = sport_data['all_athletes']
-    if athletes:
-        # Sort athletes: qualified first, then alphabetically
-        sorted_athletes = sorted(athletes.items(), key=lambda x: (not x[1]['qualified'], x[0]))
-        
-        # Create columns for athletes
-        cols = st.columns(3)  # 3 athletes per row
-        
-        for i, (athlete_name, athlete_info) in enumerate(sorted_athletes):
-            with cols[i % 3]:
-                status_class = "qualified-status" if athlete_info['qualified'] else "not-qualified-status"
-                card_class = "athlete-card" if athlete_info['qualified'] else "athlete-card not-qualified"
-                status_text = "✅ QUALIFIED" if athlete_info['qualified'] else "❌ NOT QUALIFIED"
-                status_icon = "✅" if athlete_info['qualified'] else "❌"
-                
-                routes_text = ""
-                if athlete_info['qualified'] and athlete_info['routes']:
-                    routes_text = f"<div class='athlete-routes'>Via: {', '.join(athlete_info['routes'])}</div>"
-                
-                st.markdown(f"""
-                <div class="{card_class}">
-                    <div class="athlete-name">{status_icon} {athlete_name}</div>
-                    <div class="athlete-status {status_class}">{status_text}</div>
-                    {routes_text}
-                </div>
-                """, unsafe_allow_html=True)
-
-def main():
-    """Main dashboard application with athlete names by sport categories"""
+    # Get athlete's complete data
+    athlete_data = df[df['Name'] == athlete_name].copy()
     
-    # Header with animation
-    st.markdown('<h1 class="main-header">🏔️ SWISS OLYMPIC TEAM</h1>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitle">Milano Cortina 2026 Winter Olympics - Athletes by Sport Categories</div>', unsafe_allow_html=True)
-    
-    # Load data with spinner
-    with st.spinner("🔄 Loading Swiss Olympic data across all sports..."):
-        df = load_all_sports_data()
-    
-    if df is None:
-        st.error("❌ Failed to load data. Please check your data files.")
+    if athlete_data.empty:
+        st.error("No data found for this athlete")
         return
     
-    # Get qualification results
-    with st.spinner("🎯 Analyzing qualification status across all sports..."):
-        qualification_results, sport_summaries = get_multi_sport_qualification_results(df)
+    # Basic info
+    col1, col2, col3 = st.columns(3)
     
-    # Sidebar navigation
-    st.sidebar.markdown("## 🎿 Navigation")
-    page = st.sidebar.selectbox(
-        "Choose Dashboard Section:",
-        ["🏆 Team Overview", "👥 Athletes by Sport", "📊 Sport Statistics", "📋 Qualification Routes"],
-        index=1  # Default to Athletes by Sport
+    with col1:
+        gender = athlete_data['Gender'].iloc[0]
+        nationality = athlete_data['Nationality'].iloc[0] if 'Nationality' in athlete_data.columns else 'N/A'
+        st.metric("Gender", gender)
+        st.metric("Nationality", nationality)
+    
+    with col2:
+        sports_participated = athlete_data['Sport'].nunique()
+        total_competitions = len(athlete_data)
+        st.metric("Sports", sports_participated)
+        st.metric("Total Competitions", total_competitions)
+    
+    with col3:
+        # Overall qualification status
+        total_qualified_sports = 0
+        for sport, athletes in qualification_results.items():
+            if athlete_name in athletes and athletes[athlete_name]['qualified']:
+                total_qualified_sports += 1
+        
+        st.metric("Qualified Sports", f"{total_qualified_sports}/{sports_participated}")
+        qualification_rate = (total_qualified_sports / sports_participated * 100) if sports_participated > 0 else 0
+        st.metric("Qualification Rate", f"{qualification_rate:.1f}%")
+    
+    # Recent Activities by Sport
+    st.markdown("### 🏅 Recent Activities by Sport")
+    
+    for sport in athlete_data['Sport'].unique():
+        sport_data = athlete_data[athlete_data['Sport'] == sport].copy()
+        sport_data = sport_data.sort_values('Date', ascending=False)
+        
+        with st.expander(f"🎿 {sport} ({len(sport_data)} competitions)", expanded=True):
+            
+            # Sport-specific qualification status
+            is_qualified = False
+            qualified_routes = []
+            if sport in qualification_results and athlete_name in qualification_results[sport]:
+                athlete_qual = qualification_results[sport][athlete_name]
+                is_qualified = athlete_qual['qualified']
+                
+                # Get qualified routes
+                routes_info = athlete_qual.get('routes', {})
+                if routes_info and not routes_info.get('error'):
+                    sport_qual = routes_info.get('sports_qualifications', {}).get(sport, {})
+                    if sport_qual:
+                        qualified_routes = sport_qual.get('qualified_routes', [])
+            
+            # Status display
+            status_text = "✅ QUALIFIED for Milano 2026" if is_qualified else "❌ Not Qualified for Milano 2026"
+            status_color = "green" if is_qualified else "red"
+            st.markdown(f"**Status:** :{status_color}[{status_text}]")
+            
+            if qualified_routes:
+                st.markdown(f"**Qualified via routes:** {', '.join(qualified_routes)}")
+            
+            # Recent competitions table
+            st.markdown("**Recent Competitions:**")
+            
+            # Select relevant columns for display
+            display_columns = ['Date', 'Competition', 'Discipline', 'Rank', 'Result']
+            available_columns = [col for col in display_columns if col in sport_data.columns]
+            
+            if available_columns:
+                recent_data = sport_data[available_columns].head(10)
+                recent_data = recent_data.copy()
+                
+                # Format date if available
+                if 'Date' in recent_data.columns:
+                    recent_data['Date'] = recent_data['Date'].dt.strftime('%Y-%m-%d')
+                
+                st.dataframe(recent_data, use_container_width=True)
+            
+            # Performance statistics
+            if 'Rank_Clean' in sport_data.columns:
+                ranks = sport_data['Rank_Clean'].dropna()
+                if not ranks.empty:
+                    col_a, col_b, col_c = st.columns(3)
+                    with col_a:
+                        st.metric("Best Rank", int(ranks.min()))
+                    with col_b:
+                        st.metric("Average Rank", f"{ranks.mean():.1f}")
+                    with col_c:
+                        st.metric("Competitions", len(ranks))
+
+def main():
+    """Main dashboard function"""
+    
+    # Header
+    st.markdown("""
+    <div class="main-header">
+        🏔️ Swiss Olympic Multi-Sport Dashboard
+        <br><small>Interactive Search & Filter System</small>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Load data
+    df = load_all_sports_data()
+    if df.empty:
+        st.error("No data available")
+        return
+    
+    # Initialize qualification checker with dataframe
+    checker = MultiSportQualificationChecker(df)
+    
+    # Get qualification results
+    qualification_results, sport_summaries = get_multi_sport_qualification_results(checker, df)
+    
+    # Sidebar filters
+    st.sidebar.header("🔍 Search & Filter")
+    
+    # Get all available data
+    all_sports = sorted(df['Sport'].unique()) if 'Sport' in df.columns else []
+    all_athletes = sorted(df['Name'].unique()) if 'Name' in df.columns else []
+    genders = sorted(df['Gender'].unique()) if 'Gender' in df.columns else []
+    
+    # Enhanced athlete selection
+    st.sidebar.subheader("👤 Select Athlete")
+    
+    # Option 1: Search by typing
+    search_name = st.sidebar.text_input("🔍 Search by Name:", placeholder="Type athlete name...")
+    
+    # Option 2: Select from dropdown
+    selected_athlete = st.sidebar.selectbox(
+        "📋 Or Select from List:",
+        options=["None"] + all_athletes,
+        index=0
     )
     
-    if page == "🏆 Team Overview":
-        st.markdown('<h2 class="section-header">🏆 TEAM OVERVIEW</h2>', unsafe_allow_html=True)
+    # If an athlete is selected, show their detailed info
+    if selected_athlete != "None" or search_name:
+        st.sidebar.markdown("---")
+        st.sidebar.subheader("🎯 Selected Athlete Details")
         
-        # Overall statistics
-        total_athletes = len(df['Person'].unique())
-        total_qualified = len(qualification_results)
-        qualification_rate = (total_qualified / total_athletes * 100) if total_athletes > 0 else 0
+        # Determine which athlete to show
+        target_athlete = selected_athlete if selected_athlete != "None" else search_name
         
-        col1, col2, col3, col4 = st.columns(4)
-        
-        with col1:
-            st.markdown(f"""
-            <div class="metric-card">
-                <h2>🇨🇭</h2>
-                <h2>{total_athletes}</h2>
-                <p>Total Athletes</p>
-            </div>
-            """, unsafe_allow_html=True)
+        if target_athlete:
+            athlete_data = df[df['Name'].str.contains(target_athlete, case=False, na=False)]
+            if not athlete_data.empty:
+                # Show athlete summary in sidebar
+                athlete_sports = athlete_data['Sport'].unique()
+                athlete_gender = athlete_data['Gender'].iloc[0]
+                total_competitions = len(athlete_data)
+                
+                st.sidebar.write(f"**Name:** {target_athlete}")
+                st.sidebar.write(f"**Gender:** {athlete_gender}")
+                st.sidebar.write(f"**Sports:** {', '.join(athlete_sports)}")
+                st.sidebar.write(f"**Total Competitions:** {total_competitions}")
+    
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("🏅 General Filters")
+    
+    # Filter by sport
+    selected_sports = st.sidebar.multiselect(
+        "🏅 Filter by Sport:",
+        options=["All"] + all_sports,
+        default=["All"]
+    )
+    
+    # Filter by gender
+    selected_genders = st.sidebar.multiselect(
+        "👤 Filter by Gender:",
+        options=["All"] + list(genders),
+        default=["All"]
+    )
+    
+    # Filter by qualification status
+    qualification_filter = st.sidebar.selectbox(
+        "🎯 Qualification Status:",
+        options=["All", "Qualified Only", "Not Qualified Only"]
+    )
+    
+    # Main content area - check if specific athlete is selected
+    target_athlete = None
+    if selected_athlete != "None":
+        target_athlete = selected_athlete
+    elif search_name:
+        # Find exact match or best match
+        matching_athletes = [name for name in all_athletes if search_name.lower() in name.lower()]
+        if matching_athletes:
+            target_athlete = matching_athletes[0]  # Take first match
+    
+    # If specific athlete is selected, show detailed profile
+    if target_athlete:
+        display_detailed_athlete_profile(target_athlete, df, qualification_results)
+    else:
+        # Show general overview with filters
+        col1, col2 = st.columns([2, 1])
         
         with col2:
-            st.markdown(f"""
-            <div class="metric-card">
-                <h2>✅</h2>
-                <h2>{total_qualified}</h2>
-                <p>Qualified</p>
+            # Overall statistics
+            st.markdown("""
+            <div class="stats-container">
+                <h3>📊 Overall Statistics</h3>
             </div>
             """, unsafe_allow_html=True)
         
-        with col3:
-            st.markdown(f"""
-            <div class="metric-card">
-                <h2>⏳</h2>
-                <h2>{total_athletes - total_qualified}</h2>
-                <p>Pending</p>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with col4:
-            st.markdown(f"""
-            <div class="metric-card">
-                <h2>📈</h2>
-                <h2>{qualification_rate:.1f}%</h2>
-                <p>Success Rate</p>
-            </div>
-            """, unsafe_allow_html=True)
-        
-    elif page == "👥 Athletes by Sport":
-        st.markdown('<h2 class="section-header">👥 ATHLETES BY SPORT CATEGORIES</h2>', unsafe_allow_html=True)
-        
-        # Display each sport category with all athletes
-        for sport in sorted(sport_summaries.keys()):
-            display_sport_category(sport, sport_summaries[sport])
-            st.markdown("---")  # Separator between sports
-        
-    elif page == "📊 Sport Statistics":
-        st.markdown('<h2 class="section-header">📊 SPORT STATISTICS</h2>', unsafe_allow_html=True)
-        
-        # Prepare data for chart
-        sport_data = []
+            total_athletes = len(df['Name'].unique()) if 'Name' in df.columns else 0
+            total_qualified = sum(summary['qualified'] for summary in sport_summaries.values())
+            
+            st.metric("Total Athletes", total_athletes)
+            st.metric("Qualified Athletes", total_qualified)
+            st.metric("Qualification Rate", f"{(total_qualified/total_athletes*100):.1f}%" if total_athletes > 0 else "0%")
+            
+            # Sport breakdown
+            st.markdown("### 🏅 Sport Breakdown")
         for sport, summary in sport_summaries.items():
-            rate = (summary['qualified'] / summary['total'] * 100) if summary['total'] > 0 else 0
-            sport_data.append({
-                'Sport': sport,
-                'Qualification Rate': rate,
-                'Qualified': summary['qualified'],
-                'Total': summary['total'],
-                'Not Qualified': summary['total'] - summary['qualified']
-            })
+                rate = summary['qualification_rate']
+                st.metric(
+                    f"{sport}",
+                    f"{summary['qualified']}/{summary['total_athletes']}",
+                    f"{rate:.1f}%"
+                )
         
-        chart_df = pd.DataFrame(sport_data)
-        
-        # Create qualification rate chart
-        fig1 = px.bar(
-            chart_df,
-            x='Sport',
-            y='Qualification Rate',
-            color='Qualification Rate',
-            color_continuous_scale='RdYlGn',
-            title="Qualification Rates by Sport (%)",
-            labels={'Qualification Rate': 'Qualification Rate (%)'}
-        )
-        
-        fig1.update_layout(
-            height=500,
-            font=dict(size=14),
-            title_font_size=20,
-            showlegend=False,
-            xaxis_tickangle=-45
-        )
-        
-        st.plotly_chart(fig1, use_container_width=True)
-        
-        # Create stacked bar chart for qualified vs not qualified
-        fig2 = px.bar(
-            chart_df,
-            x='Sport',
-            y=['Qualified', 'Not Qualified'],
-            title="Athletes by Qualification Status",
-            color_discrete_map={'Qualified': '#28a745', 'Not Qualified': '#dc3545'}
-        )
-        
-        fig2.update_layout(
-            height=500,
-            font=dict(size=14),
-            title_font_size=20,
-            xaxis_tickangle=-45,
-            yaxis_title="Number of Athletes"
-        )
-        
-        st.plotly_chart(fig2, use_container_width=True)
-        
-    elif page == "📋 Qualification Routes":
-        st.markdown('<h2 class="section-header">📋 QUALIFICATION ROUTES</h2>', unsafe_allow_html=True)
-        
-        # Sport selector
-        selected_sport = st.selectbox(
-            "Select Sport for Detailed Criteria:",
-            sorted(df['Sport'].unique())
-        )
-        
-        emoji = get_sport_emoji(selected_sport)
-        st.markdown(f'<h3 style="color: white; text-align: center; font-size: 2rem;">{emoji} {selected_sport} Qualification Routes</h3>', unsafe_allow_html=True)
-        
-        # Show qualification criteria based on sport
-        criteria_map = {
-            "Biathlon": [
-                "🥇 Route 1: Top-3 at World Championships 2025 AND 1x Top-30 in World Cup 2025/26",
-                "🥈 Route 2: 1x Top-6 in World Cup 2024/25 AND 1x Top-25 in World Cup 2025/26",
-                "🥉 Route 3: 1x Top-15 in World Cup 2025/26",
-                "🏅 Route 4: 2x Top-25 in World Cup 2025/26",
-                "🎯 Route 5: 1x Top-5 in IBU Cup 2025/26 AND 2x Top-30 in World Cup 2025/26"
-            ],
-            "Alpine Skiing": [
-                "🥇 Route 1: Top-3 at World Championships 2025 AND 1x Top-30 in World Cup 2025/26",
-                "🥈 Route 2: 1x Top-8 in World Cup 2024/25 AND 1x Top-20 in World Cup 2025/26",
-                "🥉 Route 3: 1x Top-10 in World Cup 2025/26",
-                "🏅 Route 4: 2x Top-15 in World Cup 2025/26",
-                "🎯 Route 5: 1x Top-5 in Europa Cup 2025/26 AND 2x Top-25 in World Cup 2025/26"
-            ],
-            "Cross-Country Skiing": [
-                "🥇 Route 1: Top-3 at World Championships 2025 AND 1x Top-30 in World Cup 2025/26",
-                "🥈 Route 2: 1x Top-10 in World Cup 2024/25 AND 1x Top-20 in World Cup 2025/26",
-                "🥉 Route 3: 1x Top-15 in World Cup 2025/26",
-                "🏅 Route 4: 2x Top-25 in World Cup 2025/26",
-                "🎯 Route 5: 1x Top-5 in Continental Cup 2025/26 AND 2x Top-30 in World Cup 2025/26"
-            ],
-            "Freestyle Skiing": [
-                "🥇 Route 1: Top-3 at World Championships 2025 AND 1x Top-20 in World Cup 2025/26",
-                "🥈 Route 2: 1x Top-8 in World Cup 2024/25 AND 1x Top-16 in World Cup 2025/26",
-                "🥉 Route 3: 1x Top-12 in World Cup 2025/26",
-                "🏅 Route 4: 2x Top-20 in World Cup 2025/26",
-                "🎯 Route 5: 1x Top-3 in Continental Cup 2025/26 AND 2x Top-25 in World Cup 2025/26"
-            ],
-            "Bobsleigh": [
-                "🥇 Route 1: Top-3 at World Championships 2025 AND 1x Top-15 in World Cup 2025/26",
-                "🥈 Route 2: 1x Top-8 in World Cup 2024/25 AND 1x Top-12 in World Cup 2025/26",
-                "🥉 Route 3: 1x Top-10 in World Cup 2025/26",
-                "🏅 Route 4: 2x Top-15 in World Cup 2025/26",
-                "🎯 Route 5: 1x Top-3 in Europa Cup 2025/26 AND 2x Top-20 in World Cup 2025/26"
-            ],
-            "Figure Skating": [
-                "🥇 Route 1: Top-3 at World Championships 2025 AND 1x Top-12 in Grand Prix 2025/26",
-                "🥈 Route 2: 1x Top-6 in Grand Prix 2024/25 AND 1x Top-10 in Grand Prix 2025/26",
-                "🥉 Route 3: 1x Top-8 in Grand Prix 2025/26 OR Top-5 in European Championships 2026",
-                "🏅 Route 4: 2x Top-15 in International Competitions 2025/26",
-                "🎯 Route 5: 1x Top-3 in Junior Grand Prix Final AND 1x Top-12 in Senior International"
-            ]
-        }
-        
-        criteria = criteria_map.get(selected_sport, [])
-        
-        for criterion in criteria:
-            st.markdown(f"""
-            <div class="sport-category" style="margin: 1rem 0;">
-                <h4 style="color: #2c3e50; font-size: 1.2rem; margin: 0;">{criterion}</h4>
+        with col1:
+            # Filter and display athletes
+            filtered_athletes = []
+            
+            # Apply filters
+            for sport, athletes in qualification_results.items():
+                # Sport filter
+                if "All" not in selected_sports and sport not in selected_sports:
+                    continue
+                    
+                for athlete_name, athlete_info in athletes.items():
+                    # Name search filter (when not showing detailed profile)
+                    if search_name and search_name.lower() not in athlete_name.lower():
+                        continue
+                    
+                    # Gender filter
+                    athlete_data = athlete_info['data'].iloc[0] if len(athlete_info['data']) > 0 else {}
+                    athlete_gender = athlete_data.get('Gender', 'N/A')
+                    if "All" not in selected_genders and athlete_gender not in selected_genders:
+                        continue
+                    
+                    # Qualification filter
+                    is_qualified = athlete_info['qualified']
+                    if qualification_filter == "Qualified Only" and not is_qualified:
+                        continue
+                    elif qualification_filter == "Not Qualified Only" and is_qualified:
+                        continue
+                    
+                    filtered_athletes.append((athlete_name, athlete_info, sport))
+            
+            # Display results
+            if filtered_athletes:
+                st.markdown(f"### 👥 Athletes ({len(filtered_athletes)} found)")
+                st.markdown("💡 **Tip:** Select an athlete from the sidebar to see detailed profile, recent activities, and qualification routes!")
+                
+                # Sort athletes by name
+                filtered_athletes.sort(key=lambda x: x[0])
+                
+                for athlete_name, athlete_info, sport in filtered_athletes:
+                    create_athlete_card(athlete_name, athlete_info, sport)
+            else:
+                st.markdown("""
+                <div class="no-results">
+                    <h3>🔍 No athletes found</h3>
+                    <p>Try adjusting your search criteria or filters.</p>
             </div>
             """, unsafe_allow_html=True)
 
