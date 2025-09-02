@@ -4,18 +4,29 @@ A comprehensive analysis system for Swiss biathlon athletes' Olympic qualificati
 
 ## 🚀 Quick Start
 
-### Option 1: Web Dashboard (Recommended)
+### Option 1: Athlete Lookup System (NEW - Interactive Search)
+```bash
+python run_lookup.py
+```
+Then open your browser to `http://localhost:8502`
+- **Search athletes by name** (type or select)
+- **Filter by sport** (Alpine Skiing, Biathlon, Bobsleigh, etc.)
+- **Check qualification status** and detailed information
+
+### Option 2: Web Dashboard (Analytics Overview)
 ```bash
 python run_dashboard.py
 ```
 Then open your browser to `http://localhost:8501`
+- **Team overview** and statistics
+- **Performance analysis** with charts
 
-### Option 2: Command Line Analysis
+### Option 3: Command Line Analysis
 ```bash
 python run_analysis.py
 ```
 
-### Option 3: Individual Scripts
+### Option 4: Individual Scripts
 ```bash
 python biathlon_analysis.py      # Basic data analysis
 python qualification_checker.py  # Qualification checking
@@ -41,7 +52,14 @@ python run_dashboard.py
 
 ## 📊 Features
 
-### 🌐 Web Dashboard
+### 🔍 Athlete Lookup System (NEW)
+- **Name Search**: Type athlete names or select from dropdown
+- **Multi-Sport Support**: All 6 Swiss Olympic sports (177 athletes total)
+- **Smart Filtering**: Filter by sport, gender, qualification status
+- **Detailed Profiles**: Complete athlete information and performance
+- **Qualification Checker**: Olympic qualification status with route details
+
+### 🌐 Web Dashboard (Analytics)
 - **Interactive Overview**: Team qualification status and statistics
 - **Athlete Profiles**: Detailed information for each athlete
 - **Performance Analysis**: Charts and trends for individual athletes
@@ -79,13 +97,19 @@ swiss_winter_olympics/
 └── cleaned_biathlon_results.csv    # Processed dataset (generated)
 ```
 
-## 📊 Current Results Summary
+## 📊 Current Database Summary
 
-- **Total Athletes Analyzed**: 14 Swiss biathlon athletes
+### 🔍 Complete Swiss Olympic Database
+- **Total Swiss Athletes**: 177 across all sports
+- **Sports Covered**: 6 (Alpine Skiing, Biathlon, Bobsleigh, Cross-Country, Figure Skating, Freestyle)
+- **Total Results**: 2,349 competition results
+- **Date Range**: December 2024 - March 2026
+
+### 🎿 Biathlon Team Selection (Olympic Focus)
+- **Biathlon Athletes**: 14 Swiss athletes
 - **Qualified Athletes**: 8 (4 men, 4 women)
 - **Qualification Rate**: 57.1%
-- **Total Race Results**: 363 biathlon results analyzed
-- **Date Range**: December 2024 - March 2026
+- **Biathlon Results**: 363 results analyzed
 
 ### 🏆 Qualified Athletes
 - **Women**: Amy Baserga, Lena Häcki-Groß, Aita Gasparin, Elisa Gasparin
