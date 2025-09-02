@@ -1,36 +1,49 @@
-# 🏔️ Swiss Olympic Biathlon Analysis Dashboard
+# 🏔️ Swiss Olympic Multi-Sport Analysis System
 
-A comprehensive analysis system for Swiss biathlon athletes' Olympic qualification for the 2026 Milano Cortina Olympics.
+A comprehensive analysis system for Swiss winter sport athletes' Olympic qualification for the 2026 Milano Cortina Olympics across 6 sports: Biathlon, Alpine Skiing, Cross-Country Skiing, Freestyle Skiing, Bobsleigh, and Figure Skating.
 
 ## 🚀 Quick Start
 
-### Option 1: Athlete Lookup System (NEW - Interactive Search)
+### Option 1: Multi-Sport Dashboard (Recommended)
 ```bash
-python run_lookup.py
+python scripts/run_dashboard.py
 ```
-Then open your browser to `http://localhost:8502`
-- **Search athletes by name** (type or select)
-- **Filter by sport** (Alpine Skiing, Biathlon, Bobsleigh, etc.)
-- **Check qualification status** and detailed information
+**URL**: `http://localhost:8501`
+- **🏆 Team Overview** - Overall statistics and progress
+- **👥 Athletes by Sport** - All athlete names organized by sport categories  
+- **📊 Sport Statistics** - Interactive charts and comparisons
+- **📋 Qualification Routes** - Detailed criteria for each sport
 
-### Option 2: Web Dashboard (Analytics Overview)
+### Option 2: Athlete Lookup System
 ```bash
-python run_dashboard.py
+python scripts/run_lookup.py
 ```
-Then open your browser to `http://localhost:8501`
-- **Team overview** and statistics
-- **Performance analysis** with charts
+**URL**: `http://localhost:8502`
+- **🔍 Search athletes** by name (type or select)
+- **🏅 Filter by sport** and qualification status
+- **📋 Detailed athlete profiles** with Milano 2026 qualification status
 
-### Option 3: Command Line Analysis
+### Option 3: Command-Line Analysis
 ```bash
-python run_analysis.py
+python scripts/run_analysis.py
 ```
+Comprehensive terminal-based analysis across all sports
 
-### Option 4: Individual Scripts
-```bash
-python biathlon_analysis.py      # Basic data analysis
-python qualification_checker.py  # Qualification checking
-```
+---
+
+## 📊 Current Team Status (Milano Cortina 2026)
+
+| Sport | Athletes | Qualified | Rate |
+|-------|----------|-----------|------|
+| **🛷 Bobsleigh** | 22 | 21 | **95.5%** |
+| **🎯 Biathlon** | 14 | 8 | 57.1% |
+| **🤸 Freestyle Skiing** | 49 | 25 | 51.0% |
+| **🎿 Cross-Country Skiing** | 29 | 14 | 48.3% |
+| **⛷️ Alpine Skiing** | 57 | 25 | 43.9% |
+| **⛸️ Figure Skating** | 6 | 0 | 0.0% |
+| **🇨🇭 TOTAL** | **177** | **93** | **52.5%** |
+
+---
 
 ## 📦 Installation
 
@@ -40,154 +53,122 @@ git clone https://github.com/Trista1208/swiss_winter_olympics.git
 cd swiss_winter_olympics
 ```
 
-2. **Install dependencies**
+2. **Install requirements**
 ```bash
 pip install -r requirements.txt
 ```
 
 3. **Run the dashboard**
 ```bash
-python run_dashboard.py
+python scripts/run_dashboard.py
 ```
 
-## 📊 Features
-
-### 🔍 Athlete Lookup System (NEW)
-- **Name Search**: Type athlete names or select from dropdown
-- **Multi-Sport Support**: All 6 Swiss Olympic sports (177 athletes total)
-- **Smart Filtering**: Filter by sport, gender, qualification status
-- **Detailed Profiles**: Complete athlete information and performance
-- **Qualification Checker**: Olympic qualification status with route details
-
-### 🌐 Web Dashboard (Analytics)
-- **Interactive Overview**: Team qualification status and statistics
-- **Athlete Profiles**: Detailed information for each athlete
-- **Performance Analysis**: Charts and trends for individual athletes
-- **Qualification Details**: Route-by-route breakdown and criteria
-
-### 📈 Analysis Components
-- **Data Processing**: Cleans and analyzes biathlon results
-- **Qualification System**: Implements all 5 Olympic qualification routes
-- **Performance Metrics**: Rankings, trends, and statistics
-- **Reporting**: Comprehensive athlete and team reports
-
-## 🎯 Qualification Routes
-
-The system evaluates athletes against 5 qualification routes defined by Swiss Olympic:
-
-1. **Route 1**: Top-3 at World Championships 2025 AND 1x Top-30 in World Cup 2025/26
-2. **Route 2**: 1x Top-6 in World Cup 2024/25 AND 1x Top-25 in World Cup 2025/26  
-3. **Route 3**: 1x Top-15 in World Cup 2025/26
-4. **Route 4**: 2x Top-25 in World Cup 2025/26
-5. **Route 5**: 1x Top-5 in IBU Cup 2025/26 AND 2x Top-30 in World Cup 2025/26
+---
 
 ## 📁 Project Structure
 
 ```
-swiss_winter_olympics/
-├── app.py                          # Streamlit web dashboard
-├── run_dashboard.py                # Dashboard launcher
-├── biathlon_analysis.py            # Main data analysis
-├── qualification_checker.py        # Olympic qualification system
-├── run_analysis.py                 # Complete pipeline runner
-├── requirements.txt                # Python dependencies
-├── Results_Test_Version.csv        # Biathlon results dataset
-├── Biathlon_Hauptkriterien.txt     # Qualification criteria
-├── Task_description.pdf            # Project requirements
-└── cleaned_biathlon_results.csv    # Processed dataset (generated)
+swiss_Olympics/
+├── 📋 requirements.txt          # Python dependencies
+├── 📖 README.md                 # Project documentation
+├── 
+├── 📂 scripts/                  # Launcher scripts
+│   ├── run_dashboard.py         # Launch main dashboard
+│   ├── run_lookup.py            # Launch athlete search
+│   └── run_analysis.py          # Command-line analysis
+├── 
+├── 📂 src/                      # Source code
+│   ├── app.py                   # Main dashboard app
+│   ├── athlete_lookup.py        # Athlete search interface
+│   ├── multi_sport_analysis.py  # Multi-sport analysis
+│   ├── multi_sport_qualification_checker.py  # Qualification logic
+│   ├── biathlon_analysis.py     # Biathlon-specific analysis
+│   └── qualification_checker.py # Biathlon qualification checker
+├── 
+├── 📂 data/                     # Data files
+│   ├── Results_Test_Version.csv # Main dataset
+│   ├── Task_description.pdf    # Project requirements
+│   └── cleaned_biathlon_results.csv
+├── 
+├── 📂 criterias/               # Qualification criteria
+│   ├── Biathlon_Hauptkriterien.txt
+│   ├── Alpine_Skiing_Hauptkriterien.txt
+│   ├── Cross_Country_Skiing_Hauptkriterien.txt
+│   ├── Freestyle_Skiing_Hauptkriterien.txt
+│   ├── Bobsleigh_Hauptkriterien.txt
+│   └── Figure_Skating_Hauptkriterien.txt
+├── 
+├── 📂 docs/                    # Documentation
+│   ├── setup_info.md
+│   └── implementation_summaries/
+├── 
+└── 📂 archive/                 # Archived files
+    ├── old_versions/
+    ├── test_scripts/
+    └── demos/
 ```
-
-## 📊 Current Database Summary
-
-### 🔍 Complete Swiss Olympic Database
-- **Total Swiss Athletes**: 177 across all sports
-- **Sports Covered**: 6 (Alpine Skiing, Biathlon, Bobsleigh, Cross-Country, Figure Skating, Freestyle)
-- **Total Results**: 2,349 competition results
-- **Date Range**: December 2024 - March 2026
-
-### 🎿 Biathlon Team Selection (Olympic Focus)
-- **Biathlon Athletes**: 14 Swiss athletes
-- **Qualified Athletes**: 8 (4 men, 4 women)
-- **Qualification Rate**: 57.1%
-- **Biathlon Results**: 363 results analyzed
-
-### 🏆 Qualified Athletes
-- **Women**: Amy Baserga, Lena Häcki-Groß, Aita Gasparin, Elisa Gasparin
-- **Men**: Niklas Hartweg, Joscha Burkhalter, Sebastian Stalder, Jeremy Finello
-
-## 🛠️ Technical Requirements
-
-- **Python**: 3.8+
-- **Key Dependencies**:
-  - pandas >= 2.0.0
-  - streamlit >= 1.28.0
-  - plotly >= 5.15.0
-  - numpy >= 1.20.0
-
-## 🚀 Usage Examples
-
-### View Team Overview
-```bash
-python run_dashboard.py
-# Navigate to "📊 Overview" tab
-```
-
-### Analyze Specific Athlete
-```bash
-python run_dashboard.py
-# Go to "👥 Athletes" tab
-# Select athlete from dropdown
-```
-
-### Check Qualification Status
-```bash
-python qualification_checker.py
-# Outputs detailed qualification report
-```
-
-## 📱 Dashboard Pages
-
-1. **📊 Overview**: Team statistics and qualification summary
-2. **👥 Athletes**: Individual athlete profiles and filtering
-3. **📈 Performance Analysis**: Interactive charts and trends
-4. **📋 Qualification Details**: Route explanations and breakdowns
-
-## 🔧 Troubleshooting
-
-### Dashboard won't start?
-```bash
-pip install -r requirements.txt
-streamlit run app.py
-```
-
-### Missing data files?
-Ensure all CSV and criteria files are in the project directory.
-
-### Import errors?
-```bash
-pip install --upgrade streamlit plotly pandas
-```
-
-## 📈 Future Enhancements
-
-- [ ] Real-time data updates
-- [ ] Export functionality for reports
-- [ ] Mobile-responsive design
-- [ ] Additional visualization options
-- [ ] Athlete comparison tools
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## 📄 License
-
-This project is created for Swiss Olympic team selection analysis.
 
 ---
 
-**🏔️ For the 2026 Milano Cortina Olympics** 🇨🇭
+## 🎯 Features
+
+### **Multi-Sport Analysis**
+- ✅ **6 Winter Sports** covered with individual qualification criteria
+- ✅ **177 Swiss Athletes** tracked across all sports  
+- ✅ **5 Qualification Routes** per sport (30 total routes)
+- ✅ **Real-time Status** for Milano Cortina 2026
+
+### **Interactive Dashboards**
+- ✅ **Highly visible design** with animations and gradients
+- ✅ **Sport-by-sport breakdown** with athlete names
+- ✅ **Individual athlete cards** showing qualification routes
+- ✅ **Interactive charts** and statistics
+- ✅ **Search and filtering** capabilities
+
+### **Qualification System**
+- ✅ **Sport-specific criteria** (each sport treated separately)
+- ✅ **Route-based qualification** (5 routes per sport)
+- ✅ **Milano 2026 focused** qualification tracking
+- ✅ **Swiss Olympic standards** implementation
+
+---
+
+## 🏅 Qualification Highlights
+
+### **Top Qualified Athletes by Sport:**
+
+**🛷 Bobsleigh (21/22 qualified)**
+- Michael Vogt, Melanie Hasler, Andreas Haas, Gregory Jones
+
+**🎯 Biathlon (8/14 qualified)**  
+- Amy Baserga, Lena Häcki-Groß, Niklas Hartweg, Aita Gasparin
+
+**🤸 Freestyle Skiing (25/49 qualified)**
+- Andri Ragettli, Mathilde Gremaud, Sarah Hoefflin, Noe Roth
+
+**🎿 Cross-Country Skiing (14/29 qualified)**
+- Nadja Kälin, Nadine Fähndrich, Jason Rüesch, Jonas Baumann
+
+**⛷️ Alpine Skiing (25/57 qualified)**
+- Marco Odermatt, Lara Gut-Behrami, Loïc Meillard, Wendy Holdener
+
+---
+
+## 🔧 Technical Details
+
+- **Framework**: Streamlit for web interfaces
+- **Analysis**: Pandas, NumPy for data processing  
+- **Visualization**: Plotly for interactive charts
+- **Data**: 2,349+ Swiss athlete results
+- **Qualification Logic**: Custom multi-sport checker system
+
+---
+
+## 🚀 Getting Started
+
+1. **View Team Overview**: `python scripts/run_dashboard.py` → "🏆 Team Overview"
+2. **Browse Athletes**: Navigate to "👥 Athletes by Sport" 
+3. **Search Individual Athletes**: `python scripts/run_lookup.py`
+4. **View Qualification Criteria**: Dashboard → "📋 Qualification Routes"
+
+**Perfect for presentations, team analysis, and Milano 2026 Olympic preparation!** 🏔️✨

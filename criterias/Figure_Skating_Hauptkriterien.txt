@@ -1,0 +1,104 @@
+Sport: "Figure Skating"
+Is Olympic Discipline: "Yes"
+Class: "Seniors"
+Team Members: "Varies"  # Singles, Pairs, Ice Dance
+
+selection_paths:
+  any_of:
+	
+	# Route 1: Top-3 in World Championships 2025 AND 1x Top-12 in Grand Prix 2025/26
+    - all_of:
+
+        # Condition A: Podium (Top-3) at World Championships 2025
+        - condition:
+            Comp.SetDetail: "ISU World Championships"
+            Year: 2025
+            Rank:
+              interval: [1, 3]       # interval inclusive: rank between 1 and 3
+            count_at_least: 1
+
+        # Condition B: Top-12 in Grand Prix Series 2025/26
+        - condition:
+            Comp.SetDetail: "ISU Grand Prix"
+            Date:
+              interval: ["2025-10-01", "2025-12-15"]   # interval inclusive: Grand Prix season
+            Rank:
+              interval: [1, 12]      # interval inclusive: rank between 1 and 12
+            count_at_least: 1
+    
+        # Route 2: 1x Top-6 in Grand Prix 2024/25 AND 1x Top-10 in Grand Prix 2025/26
+    - all_of:
+
+        # Condition A: Top-6 in Grand Prix 2024/25
+        - condition:
+            Comp.SetDetail: "ISU Grand Prix"
+            Date:
+              interval: ["2024-10-01", "2024-12-15"]   # inclusive date interval
+            Rank:
+              interval: [1, 6]                         # inclusive rank interval (Top-6)
+            count_at_least: 1
+
+        # Condition B: Top-10 in Grand Prix 2025/26
+        - condition:
+            Comp.SetDetail: "ISU Grand Prix"
+            Date:
+              interval: ["2025-10-01", "2025-12-15"]   # inclusive date interval
+            Rank:
+              interval: [1, 10]                        # inclusive rank interval (Top-10)
+            count_at_least: 1
+        
+        # Route 3: 1x Top-8 in Grand Prix 2025/26 OR Top-5 in European Championships 2026
+    - any_of:
+        - condition:
+            Comp.SetDetail: "ISU Grand Prix"
+            Date:
+              interval: ["2025-10-01", "2025-12-15"]   # inclusive date interval
+            Rank:
+              interval: [1, 8]                         # inclusive rank interval (Top-8)
+            count_at_least: 1
+
+        - condition:
+            Comp.SetDetail: "ISU European Championships"
+            Year: 2026
+            Rank:
+              interval: [1, 5]                         # inclusive rank interval (Top-5)
+            count_at_least: 1
+
+    # Route 4: 2x Top-15 in International Competitions 2025/26
+    - all_of:
+        - condition:
+            Comp.SetDetail: ["ISU Grand Prix", "ISU Challenger Series", "ISU Championships"]
+            Date:
+              interval: ["2025-07-01", "2026-01-31"]   # inclusive date interval
+            Rank:
+              interval: [1, 15]                        # inclusive rank interval (Top-15)
+            count_at_least: 2                          # requires two such results
+          
+    # Route 5: 1x Top-3 in Junior Grand Prix Final AND 1x Top-12 in Senior International
+    - all_of:
+
+        # Condition A: Top-3 in Junior Grand Prix Final (for age-eligible skaters)
+        - condition:
+            Comp.SetDetail: "ISU Junior Grand Prix Final"
+            Date:
+              interval: ["2024-07-01", "2025-12-31"]   # inclusive date interval
+            Rank:
+              interval: [1, 3]                         # inclusive rank interval (Top-3)
+            count_at_least: 1
+
+        # Condition B: Top-12 in Senior International Competition
+        - condition:
+            Comp.SetDetail: ["ISU Grand Prix", "ISU Challenger Series"]
+            Date:
+              interval: ["2025-07-01", "2026-01-31"]   # inclusive date interval
+            Rank:
+              interval: [1, 12]                        # inclusive rank interval (Top-12)
+            count_at_least: 1
+
+# Additional Notes:
+# - Disciplines include: Men's Singles, Women's Singles, Pairs, Ice Dance, Team Event
+# - Swiss Figure Skating has emerging talent in various disciplines
+# - Milano Cortina 2026: February 6-22, 2026
+# - Key venue: Palavela (Turin) for Figure Skating events
+# - Artistic sport combining technical elements with performance quality
+# - Judged sport with complex scoring system (Technical Score + Program Component Score)

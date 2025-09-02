@@ -1,0 +1,107 @@
+# Swiss Olympic Team Qualification Criteria - Milano Cortina 2026
+# Complete overview of qualification paths for all sports
+
+Milano Cortina 2026 Winter Olympics: February 6-22, 2026
+Swiss Olympic Team Selection System
+
+## Sports Covered:
+1. Biathlon (14 athletes)
+2. Alpine Skiing (57 athletes) 
+3. Cross-Country Skiing (29 athletes)
+4. Freestyle Skiing (49 athletes)
+5. Bobsleigh (22 athletes)
+6. Figure Skating (6 athletes)
+
+Total: 177 Swiss Olympic athletes across 6 sports
+
+## Qualification Criteria Files:
+- Biathlon_Hauptkriterien.txt (Original - Implemented)
+- Alpine_Skiing_Hauptkriterien.txt
+- Cross_Country_Skiing_Hauptkriterien.txt  
+- Freestyle_Skiing_Hauptkriterien.txt
+- Bobsleigh_Hauptkriterien.txt
+- Figure_Skating_Hauptkriterien.txt
+
+## Common Qualification Route Structure:
+Each sport follows a similar 5-route qualification system:
+
+Route 1: World Championships podium + World Cup performance
+Route 2: Previous season World Cup + Current season World Cup
+Route 3: Single outstanding World Cup result
+Route 4: Multiple good World Cup results
+Route 5: Continental/Lower level + World Cup combination
+
+## Sport-Specific Adaptations:
+
+### Biathlon (IBU System)
+- World Championships: Top-3 + Top-30 World Cup
+- Strong World Cup focus with IBU Cup alternative
+- Implemented and tested system
+
+### Alpine Skiing (FIS System)  
+- World Championships: Top-3 + Top-30 World Cup
+- Europa Cup as alternative pathway
+- High-performance thresholds (Top-8, Top-10)
+
+### Cross-Country Skiing (FIS Nordic)
+- Nordic World Championships integration
+- Continental Cup alternative
+- Distance and sprint disciplines included
+
+### Freestyle Skiing (FIS Freestyle)
+- Multiple disciplines (Moguls, Aerials, Cross, Park & Pipe)
+- Continental Cup pathway
+- Adjusted thresholds for smaller fields
+
+### Bobsleigh (IBSF System)
+- Team sport considerations (2-man, 4-man, 2-woman)
+- Europa Cup alternative
+- Shorter qualification window (sliding season)
+
+### Figure Skating (ISU System)
+- Grand Prix Series focus
+- European Championships alternative
+- Junior to Senior transition pathway
+- Artistic sport with judged results
+
+## Key Venues - Milano Cortina 2026:
+
+### Italy Locations:
+- Cortina d'Ampezzo: Alpine Skiing (Speed), Bobsleigh, Luge, Skeleton
+- Anterselva/Antholz: Biathlon
+- Val di Fiemme (Tesero): Cross-Country, Nordic Combined, Ski Jumping
+- Milano: Ice Hockey, Figure Skating, Short Track, Curling
+- Bormio: Alpine Skiing (Technical events)
+- Livigno: Freestyle Skiing, Snowboard
+- Ponte di Legno-Tonale: Alpine Skiing (Parallel events)
+
+## Implementation Status:
+
+✅ COMPLETED:
+- Biathlon: Full qualification system implemented and tested
+- All sports: Qualification criteria files created
+
+🔄 IN PROGRESS:
+- Integration of other sports into athlete lookup system
+- Multi-sport qualification checker development
+
+📋 PLANNED:
+- Sport-specific qualification analysis
+- Complete Milano 2026 team selection dashboard
+- Cross-sport performance comparison
+
+## Technical Notes:
+- All criteria files use consistent YAML-like structure
+- Date intervals are inclusive
+- Rank intervals are inclusive (1-based ranking)
+- count_at_least specifies minimum required results
+- any_of/all_of logic for complex qualification paths
+
+## Data Sources:
+- Results_Test_Version.csv: Competition results (2024-2026)
+- Sport-specific hauptkriterien files: Qualification rules
+- Swiss Olympic official criteria (adapted for system)
+
+---
+Swiss Olympic Team Analysis System
+Milano Cortina 2026 Winter Olympics Preparation

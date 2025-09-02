@@ -1,6 +1,34 @@
+# Swiss Olympic Biathlon Analysis System - Milano Cortina 2026
+# Requirements for the complete athlete lookup and qualification system
+
+# Core Data Processing
 pandas>=2.0.0
 numpy>=1.20.0
+
+# Data Visualization  
 matplotlib>=3.5.0
 seaborn>=0.11.0
-streamlit>=1.28.0
 plotly>=5.15.0
+
+# Web Interface Framework
+streamlit>=1.28.0
+
+# Date and Time Handling
+python-dateutil>=2.8.0
+
+# Additional Streamlit Dependencies (auto-installed with streamlit but listed for completeness)
+altair>=4.0.0
+pillow>=7.1.0
+requests>=2.27.0
+toml>=0.10.1
+click>=7.0.0
+protobuf>=3.20.0
+
+# Development and Testing (optional)
+pytest>=7.0.0
+black>=22.0.0
+flake8>=4.0.0
+
+# System Requirements
+# Python >= 3.8
+# Recommended: Python 3.9+

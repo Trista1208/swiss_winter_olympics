@@ -1,0 +1,96 @@
+Sport: "Freestyle Skiing"
+Is Olympic Discipline: "Yes"
+Class: "Seniors"
+Team Members: "No"
+
+selection_paths:
+  any_of:
+	
+	# Route 1: Top-3 in World Championships 2025 AND 1x Top-20 in World Cup 2025/26
+    - all_of:
+
+        # Condition A: Podium (Top-3) at World Championships 2025
+        - condition:
+            Comp.SetDetail: "FIS Freestyle World Championships"
+            Year: 2025
+            Rank:
+              interval: [1, 3]       # interval inclusive: rank between 1 and 3
+            count_at_least: 1
+
+        # Condition B: Top-20 in World Cup 2025/26
+        - condition:
+            Comp.SetDetail: "FIS Freestyle World Cup"
+            Date:
+              interval: ["2025-10-01", "2026-03-31"]   # interval inclusive: date between start and end
+            Rank:
+              interval: [1, 20]      # interval inclusive: rank between 1 and 20
+            count_at_least: 1
+    
+        # Route 2: 1x Top-8 in World Cup 2024/25 AND 1x Top-16 in World Cup 2025/26
+    - all_of:
+
+        # Condition A: Top-8 in World Cup 2024/25
+        - condition:
+            Comp.SetDetail: "FIS Freestyle World Cup"
+            Date:
+              interval: ["2024-10-01", "2025-04-30"]   # inclusive date interval
+            Rank:
+              interval: [1, 8]                         # inclusive rank interval (Top-8)
+            count_at_least: 1
+
+        # Condition B: Top-16 in World Cup 2025/26
+        - condition:
+            Comp.SetDetail: "FIS Freestyle World Cup"
+            Date:
+              interval: ["2025-10-01", "2026-03-31"]   # inclusive date interval
+            Rank:
+              interval: [1, 16]                        # inclusive rank interval (Top-16)
+            count_at_least: 1
+        
+        # Route 3: 1x Top-12 in World Cup 2025/26 
+    - all_of:
+        - condition:
+            Comp.SetDetail: "FIS Freestyle World Cup"
+            Date:
+              interval: ["2025-10-01", "2026-03-31"]   # inclusive date interval
+            Rank:
+              interval: [1, 12]                        # inclusive rank interval (Top-12)
+            count_at_least: 1
+
+    # Route 4: 2x Top-20 in World Cup 2025/26
+    - all_of:
+        - condition:
+            Comp.SetDetail: "FIS Freestyle World Cup"
+            Date:
+              interval: ["2025-10-01", "2026-03-31"]   # inclusive date interval
+            Rank:
+              interval: [1, 20]                        # inclusive rank interval (Top-20)
+            count_at_least: 2                          # requires two such results
+          
+    # Route 5: 1x Top-3 in Continental Cup 2025/26 AND 2x Top-25 in World Cup 2025/26 
+    - all_of:
+
+        # Condition A: Top-3 in Continental Cup 2025/26
+        - condition:
+            Comp.SetDetail: "FIS Continental Cup"
+            Date:
+              interval: ["2025-10-01", "2026-03-31"]   # inclusive date interval
+            Rank:
+              interval: [1, 3]                         # inclusive rank interval (Top-3)
+            count_at_least: 1
+
+        # Condition B: 2x Top-25 in World Cup 2025/26
+        - condition:
+            Comp.SetDetail: "FIS Freestyle World Cup"
+            Date:
+              interval: ["2025-10-01", "2026-03-31"]   # inclusive date interval
+            Rank:
+              interval: [1, 25]                        # inclusive rank interval (Top-25)
+            count_at_least: 2
+
+# Additional Notes:
+# - Disciplines include: Moguls, Aerials, Cross, Halfpipe, Slopestyle, Big Air, Ski Cross
+# - Swiss Freestyle has strong tradition in Aerials, Cross, and Park & Pipe
+# - Milano Cortina 2026: February 6-22, 2026
+# - Key venues: Various locations for different freestyle disciplines
+# - High-risk, high-reward sport with technical and artistic elements

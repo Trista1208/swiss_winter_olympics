@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Swiss Olympic Biathlon Dashboard Launcher
+Swiss Olympic Multi-Sport Dashboard Launcher
 Simple script to launch the Streamlit web interface
 """
 
@@ -11,19 +11,23 @@ import os
 def main():
     """Launch the Streamlit dashboard"""
     
-    print("🏔️ SWISS OLYMPIC BIATHLON DASHBOARD")
-    print("=" * 50)
-    print("Starting web interface...")
+    # Change to project root directory
+    os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    
+    print("🏔️ SWISS OLYMPIC MULTI-SPORT DASHBOARD")
+    print("=" * 55)
+    print("Multi-Sport Team Selection System")
+    print("📊 Sports: Biathlon, Alpine Skiing, Cross-Country Skiing, Freestyle Skiing, Bobsleigh, Figure Skating")
     print("\n📝 Instructions:")
     print("1. The dashboard will open in your web browser")
     print("2. If it doesn't open automatically, go to: http://localhost:8501")
     print("3. Press Ctrl+C to stop the server")
-    print("\n🚀 Launching dashboard...")
+    print("\n🚀 Launching multi-sport dashboard...")
     
     try:
-        # Run streamlit
+        # Run streamlit on the app in src folder
         subprocess.run([
-            sys.executable, "-m", "streamlit", "run", "app.py",
+            sys.executable, "-m", "streamlit", "run", "src/app.py",
             "--server.port", "8501",
             "--server.address", "localhost",
             "--browser.gatherUsageStats", "false"
@@ -35,7 +39,7 @@ def main():
         print("\n🔧 Troubleshooting:")
         print("1. Make sure you have installed all requirements: pip install -r requirements.txt")
         print("2. Ensure all data files are present")
-        print("3. Try running: streamlit run app.py")
+        print("3. Try running: streamlit run src/app.py")
 
 if __name__ == "__main__":
     main()

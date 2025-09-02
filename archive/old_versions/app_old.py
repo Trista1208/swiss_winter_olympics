@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Swiss Olympic Biathlon Team Selection Dashboard
-Interactive web interface for viewing athlete qualification status and performance
+Swiss Olympic Multi-Sport Team Selection Dashboard
+Interactive web interface for viewing athlete qualification status and performance across all sports
 """
 
 import streamlit as st
@@ -15,10 +15,11 @@ import numpy as np
 # Import our analysis modules
 from biathlon_analysis import main as load_data
 from qualification_checker import BiathlonQualificationChecker
+from multi_sport_qualification_checker import MultiSportQualificationChecker
 
 # Configure page
 st.set_page_config(
-    page_title="🏔️ Swiss Olympic Biathlon Dashboard",
+    page_title="🏔️ Swiss Olympic Multi-Sport Dashboard",
     page_icon="🎿",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -75,33 +76,57 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 @st.cache_data
-def load_biathlon_data():
-    """Load and process biathlon data"""
+def load_all_sports_data():
+    """Load and process all sports data"""
     try:
-        df = load_data()
+        # Load raw data
+        df = pd.read_csv("Results_Test_Version.csv", sep=';', encoding='utf-8')
+        df.columns = df.columns.str.strip('"')
+        
+        # Clean and process data
+        df['Date'] = pd.to_datetime(df['Date'], format='%Y/%m/%d %H:%M:%S', errors='coerce')
+        df['Rank_Clean'] = pd.to_numeric(df['Rank'].str.extract(r'(\d+)')[0], errors='coerce')
+        
+        # Filter for Swiss athletes only
+        df = df[df['Nationality'] == 'SUI'].copy()
+        
         return df
     except Exception as e:
         st.error(f"Error loading data: {e}")
         return None
 
 @st.cache_data
-def get_qualification_results(df):
-    """Get qualification results for all athletes"""
+def get_multi_sport_qualification_results(df):
+    """Get qualification results for all athletes across all sports"""
     try:
-        checker = BiathlonQualificationChecker(df)
+        checker = MultiSportQualificationChecker(df)
         results = {}
+        sport_summaries = {}
         
-        for athlete in df['Person'].unique():
-            if pd.notna(athlete):
-                athlete_results = {}
-                for route in range(1, 6):
-                    method_name = f"check_route_{route}"
-                    if hasattr(checker, method_name):
-                        route_result = getattr(checker, method_name)(athlete)
-                        athlete_results[f"Route {route}"] = route_result
-                results[athlete] = athlete_results
+        # Get all sports
+        sports = df['Sport'].unique()
         
-        return results
+        for sport in sports:
+            sport_athletes = df[df['Sport'] == sport]['Person'].unique()
+            qualified_athletes = []
+            
+            for athlete in sport_athletes:
+                if pd.notna(athlete):
+                    athlete_qual = checker.check_athlete_qualification(athlete)
+                    
+                    if athlete_qual and not athlete_qual.get('error'):
+                        sport_qual = athlete_qual['sports_qualifications'].get(sport, {})
+                        if sport_qual.get('qualified', False):
+                            qualified_athletes.append(athlete)
+                            results[athlete] = athlete_qual
+            
+            sport_summaries[sport] = {
+                'total': len(sport_athletes),
+                'qualified': len(qualified_athletes),
+                'qualified_names': qualified_athletes
+            }
+        
+        return results, sport_summaries
     except Exception as e:
         st.error(f"Error getting qualification results: {e}")
         return {}
@@ -171,7 +196,7 @@ def create_performance_chart(df, athlete_name):
         labels={'Rank_Clean': 'Rank', 'Date': 'Date'}
     )
     
-    fig.update_yaxis(autorange="reversed")  # Lower rank is better
+    fig.update_layout(yaxis=dict(autorange="reversed"))  # Lower rank is better
     fig.update_layout(height=400)
     
     return fig
@@ -207,20 +232,20 @@ def main():
     """Main dashboard application"""
     
     # Header
-    st.markdown('<h1 class="main-header">🏔️ Swiss Olympic Biathlon Dashboard</h1>', unsafe_allow_html=True)
-    st.markdown("### 2026 Milano Cortina Olympics Team Selection")
+    st.markdown('<h1 class="main-header">🏔️ Swiss Olympic Multi-Sport Dashboard</h1>', unsafe_allow_html=True)
+    st.markdown("### 2026 Milano Cortina Olympics Team Selection - All Sports")
     
     # Load data
-    with st.spinner("Loading biathlon data..."):
-        df = load_biathlon_data()
+    with st.spinner("Loading multi-sport data..."):
+        df = load_all_sports_data()
     
     if df is None:
         st.error("Failed to load data. Please check your data files.")
         return
     
     # Get qualification results
-    with st.spinner("Analyzing qualification status..."):
-        qualification_results = get_qualification_results(df)
+    with st.spinner("Analyzing qualification status across all sports..."):
+        qualification_results, sport_summaries = get_multi_sport_qualification_results(df)
     
     # Sidebar navigation
     st.sidebar.title("🎿 Navigation")
@@ -230,12 +255,31 @@ def main():
     )
     
     if page == "📊 Overview":
-        st.header("Team Selection Overview")
+        st.header("Multi-Sport Team Selection Overview")
         
-        # Key metrics
-        total_athletes = len(qualification_results)
-        qualified_athletes = sum(1 for routes in qualification_results.values() if any(routes.values()))
+        # Key metrics across all sports
+        total_athletes = len(df['Person'].unique())
+        total_qualified = len(qualification_results)
         
+        # Sport breakdown
+        st.subheader("🏆 Sport-by-Sport Qualification Summary")
+        
+        # Create sport summary cards
+        cols = st.columns(3)
+        for i, (sport, summary) in enumerate(sport_summaries.items()):
+            with cols[i % 3]:
+                qualification_rate = (summary['qualified'] / summary['total'] * 100) if summary['total'] > 0 else 0
+                
+                st.markdown(f"""
+                <div class="{'athlete-card' if summary['qualified'] > 0 else 'not-qualified-card'}">
+                    <h4>🏅 {sport}</h4>
+                    <p><strong>Qualified:</strong> {summary['qualified']}/{summary['total']}</p>
+                    <p><strong>Rate:</strong> {qualification_rate:.1f}%</p>
+                </div>
+                """, unsafe_allow_html=True)
+        
+        # Overall metrics
+        st.subheader("📊 Overall Statistics")
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
@@ -249,7 +293,7 @@ def main():
         with col2:
             st.markdown(f"""
             <div class="metric-card">
-                <h2>{qualified_athletes}</h2>
+                <h2>{total_qualified}</h2>
                 <p>Qualified</p>
             </div>
             """, unsafe_allow_html=True)
@@ -257,13 +301,13 @@ def main():
         with col3:
             st.markdown(f"""
             <div class="metric-card">
-                <h2>{total_athletes - qualified_athletes}</h2>
+                <h2>{total_athletes - total_qualified}</h2>
                 <p>Not Qualified</p>
             </div>
             """, unsafe_allow_html=True)
         
         with col4:
-            qualification_rate = (qualified_athletes / total_athletes * 100) if total_athletes > 0 else 0
+            qualification_rate = (total_qualified / total_athletes * 100) if total_athletes > 0 else 0
             st.markdown(f"""
             <div class="metric-card">
                 <h2>{qualification_rate:.1f}%</h2>
@@ -372,19 +416,71 @@ def main():
             st.dataframe(recent_results[display_cols])
     
     elif page == "📋 Qualification Details":
-        st.header("Qualification Route Details")
+        st.header("Multi-Sport Qualification Route Details")
         
-        st.markdown("""
-        ### 🎯 Olympic Qualification Routes
+        # Sport selector
+        selected_sport = st.selectbox(
+            "Select Sport for Detailed Criteria:",
+            sorted(df['Sport'].unique())
+        )
         
-        Swiss Olympic has defined 5 routes for biathlon team qualification:
+        st.markdown(f"""
+        ### 🎯 {selected_sport} Olympic Qualification Routes
         
-        1. **Route 1:** Top-3 at World Championships 2025 AND 1x Top-30 in World Cup 2025/26
-        2. **Route 2:** 1x Top-6 in World Cup 2024/25 AND 1x Top-25 in World Cup 2025/26
-        3. **Route 3:** 1x Top-15 in World Cup 2025/26
-        4. **Route 4:** 2x Top-25 in World Cup 2025/26
-        5. **Route 5:** 1x Top-5 in IBU Cup 2025/26 AND 2x Top-30 in World Cup 2025/26
+        Swiss Olympic has defined 5 routes for {selected_sport.lower()} team qualification:
         """)
+        
+        # Show sport-specific qualification criteria
+        if selected_sport == "Biathlon":
+            st.markdown("""
+            1. **Route 1:** Top-3 at World Championships 2025 AND 1x Top-30 in World Cup 2025/26
+            2. **Route 2:** 1x Top-6 in World Cup 2024/25 AND 1x Top-25 in World Cup 2025/26
+            3. **Route 3:** 1x Top-15 in World Cup 2025/26
+            4. **Route 4:** 2x Top-25 in World Cup 2025/26
+            5. **Route 5:** 1x Top-5 in IBU Cup 2025/26 AND 2x Top-30 in World Cup 2025/26
+            """)
+        elif selected_sport == "Alpine Skiing":
+            st.markdown("""
+            1. **Route 1:** Top-3 at World Championships 2025 AND 1x Top-30 in World Cup 2025/26
+            2. **Route 2:** 1x Top-8 in World Cup 2024/25 AND 1x Top-20 in World Cup 2025/26
+            3. **Route 3:** 1x Top-10 in World Cup 2025/26
+            4. **Route 4:** 2x Top-15 in World Cup 2025/26
+            5. **Route 5:** 1x Top-5 in Europa Cup 2025/26 AND 2x Top-25 in World Cup 2025/26
+            """)
+        elif selected_sport == "Cross-Country Skiing":
+            st.markdown("""
+            1. **Route 1:** Top-3 at World Championships 2025 AND 1x Top-30 in World Cup 2025/26
+            2. **Route 2:** 1x Top-10 in World Cup 2024/25 AND 1x Top-20 in World Cup 2025/26
+            3. **Route 3:** 1x Top-15 in World Cup 2025/26
+            4. **Route 4:** 2x Top-25 in World Cup 2025/26
+            5. **Route 5:** 1x Top-5 in Continental Cup 2025/26 AND 2x Top-30 in World Cup 2025/26
+            """)
+        elif selected_sport == "Freestyle Skiing":
+            st.markdown("""
+            1. **Route 1:** Top-3 at World Championships 2025 AND 1x Top-20 in World Cup 2025/26
+            2. **Route 2:** 1x Top-8 in World Cup 2024/25 AND 1x Top-16 in World Cup 2025/26
+            3. **Route 3:** 1x Top-12 in World Cup 2025/26
+            4. **Route 4:** 2x Top-20 in World Cup 2025/26
+            5. **Route 5:** 1x Top-3 in Continental Cup 2025/26 AND 2x Top-25 in World Cup 2025/26
+            """)
+        elif selected_sport == "Bobsleigh":
+            st.markdown("""
+            1. **Route 1:** Top-3 at World Championships 2025 AND 1x Top-15 in World Cup 2025/26
+            2. **Route 2:** 1x Top-8 in World Cup 2024/25 AND 1x Top-12 in World Cup 2025/26
+            3. **Route 3:** 1x Top-10 in World Cup 2025/26
+            4. **Route 4:** 2x Top-15 in World Cup 2025/26
+            5. **Route 5:** 1x Top-3 in Europa Cup 2025/26 AND 2x Top-20 in World Cup 2025/26
+            """)
+        elif selected_sport == "Figure Skating":
+            st.markdown("""
+            1. **Route 1:** Top-3 at World Championships 2025 AND 1x Top-12 in Grand Prix 2025/26
+            2. **Route 2:** 1x Top-6 in Grand Prix 2024/25 AND 1x Top-10 in Grand Prix 2025/26
+            3. **Route 3:** 1x Top-8 in Grand Prix 2025/26 OR Top-5 in European Championships 2026
+            4. **Route 4:** 2x Top-15 in International Competitions 2025/26
+            5. **Route 5:** 1x Top-3 in Junior Grand Prix Final AND 1x Top-12 in Senior International
+            """)
+        else:
+            st.info(f"Qualification criteria for {selected_sport} will be displayed here.")
         
         # Qualification summary table
         st.subheader("📊 Qualification Summary by Route")

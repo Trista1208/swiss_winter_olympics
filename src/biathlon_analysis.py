@@ -9,7 +9,7 @@ def main():
     print("=" * 50)
     
     # Load the data
-    file_path = "Results_Test_Version.csv"
+    file_path = "data/Results_Test_Version.csv"
     
     try:
         # Load the CSV with semicolon separator
