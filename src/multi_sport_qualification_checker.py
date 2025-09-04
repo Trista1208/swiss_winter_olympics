@@ -323,29 +323,57 @@ class MultiSportQualificationChecker:
         qualification_results = {}
         
         for discipline in athlete_data['Discipline'].unique():
-            for gender in athlete_data[athlete_data['Discipline'] == discipline]['Gender'].unique():
-                key = (discipline, gender)
+            # For Figure Skating, we need to handle gender mapping correctly
+            # Singles: Use competition Gender (Women/Men) 
+            # Pairs/Ice Dance: Use Mixed regardless of athlete's PersonGender
+            
+            if discipline == 'Singles':
+                # For Singles, competition Gender matches athlete PersonGender
+                competition_genders = athlete_data[athlete_data['Discipline'] == discipline]['Gender'].unique()
+            else:
+                # For Pairs/Ice Dance, always use Mixed
+                competition_genders = ['Mixed']
+            
+            for comp_gender in competition_genders:
+                key = (discipline, comp_gender)
                 if key in thresholds:
                     threshold = thresholds[key]
                     
                     # Find best result in eligible competitions
-                    best_results = athlete_data[
-                        (athlete_data['Discipline'] == discipline) &
-                        (athlete_data['Gender'] == gender) &
-                        (athlete_data['Comp.SetDetail'].isin(eligible_comps)) &
-                        (athlete_data['Result'].notna())
-                    ]
+                    if discipline == 'Singles':
+                        # For Singles, match both discipline and competition gender
+                        best_results = athlete_data[
+                            (athlete_data['Discipline'] == discipline) &
+                            (athlete_data['Gender'] == comp_gender) &
+                            (athlete_data['Comp.SetDetail'].isin(eligible_comps)) &
+                            (athlete_data['Result'].notna())
+                        ]
+                    else:
+                        # For Pairs/Ice Dance, just match discipline (gender is always Mixed)
+                        best_results = athlete_data[
+                            (athlete_data['Discipline'] == discipline) &
+                            (athlete_data['Comp.SetDetail'].isin(eligible_comps)) &
+                            (athlete_data['Result'].notna())
+                        ]
                     
                     if not best_results.empty:
-                        best_score = best_results['Result'].max()
-                        qualified = best_score >= threshold
+                        # Convert Result to numeric if it's not already
+                        result_values = pd.to_numeric(best_results['Result'], errors='coerce')
+                        result_values = result_values.dropna()
                         
-                        qualification_results[f"{discipline}_{gender}"] = {
+                        if len(result_values) > 0:
+                            best_score = result_values.max()
+                            qualified = best_score >= threshold
+                        else:
+                            best_score = 0
+                            qualified = False
+                        
+                        qualification_results[f"{discipline}_{comp_gender}"] = {
                             'qualified': qualified,
                             'best_score': best_score,
                             'threshold': threshold,
                             'discipline': discipline,
-                            'gender': gender
+                            'gender': comp_gender
                         }
         
         overall_qualified = any(result['qualified'] for result in qualification_results.values())

@@ -241,10 +241,12 @@ def load_all_sports_data():
         else:
             df['Name'] = pd.Series(['Unknown'] * len(df))
         
-        # Use 'PersonGender' as 'Gender'
-        if 'PersonGender' in df.columns:
-            df['Gender'] = df['PersonGender']
-        else:
+        # Keep both Gender columns for different purposes
+        # PersonGender = athlete's personal gender (Women/Men)
+        # Gender = competition gender category (Women/Men/Mixed)
+        if 'PersonGender' not in df.columns:
+            df['PersonGender'] = pd.Series(['Unknown'] * len(df))
+        if 'Gender' not in df.columns:
             df['Gender'] = pd.Series(['Unknown'] * len(df))
         
         return df
@@ -353,7 +355,7 @@ def display_detailed_athlete_profile(athlete_name, df, qualification_results):
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        gender = athlete_data['Gender'].iloc[0]
+        gender = athlete_data['PersonGender'].iloc[0]
         nationality = athlete_data['Nationality'].iloc[0] if 'Nationality' in athlete_data.columns else 'N/A'
         st.metric("Gender", gender)
         st.metric("Nationality", nationality)
@@ -464,7 +466,7 @@ def main():
     # Get all available data
     all_sports = sorted(df['Sport'].unique()) if 'Sport' in df.columns else []
     all_athletes = sorted(df['Name'].unique()) if 'Name' in df.columns else []
-    genders = sorted(df['Gender'].unique()) if 'Gender' in df.columns else []
+    genders = sorted(df['PersonGender'].unique()) if 'PersonGender' in df.columns else []
     
     # Enhanced athlete selection
     st.sidebar.subheader("👤 Select Athlete")
@@ -580,9 +582,9 @@ def main():
                     if search_name and search_name.lower() not in athlete_name.lower():
                         continue
                     
-                    # Gender filter
+                    # Gender filter - use PersonGender for athlete's actual gender
                     athlete_data = athlete_info['data'].iloc[0] if len(athlete_info['data']) > 0 else {}
-                    athlete_gender = athlete_data.get('Gender', 'N/A')
+                    athlete_gender = athlete_data.get('PersonGender', 'N/A')
                     if "All" not in selected_genders and athlete_gender not in selected_genders:
                         continue
                     
