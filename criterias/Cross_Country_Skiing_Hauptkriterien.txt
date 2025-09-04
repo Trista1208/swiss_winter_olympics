@@ -1,96 +1,125 @@
 Sport: "Cross-Country Skiing"
 Is Olympic Discipline: "Yes"
-Class: "Seniors"
 Team Members: "No"
+Class: "Seniors" # Exception: U23 World Championships allows "Under 23"
+
+# QUALIFICATION CRITERIA - 6 ROUTES (ANY ONE QUALIFIES)
 
 selection_paths:
   any_of:
 	
-	# Route 1: Top-3 in World Championships 2025 AND 1x Top-30 in World Cup 2025/26
+	# Route 1: 1x Top-3 World Championships 2025 AND 1x Top-30 World Cup 2025/2026
     - all_of:
-
-        # Condition A: Podium (Top-3) at World Championships 2025
         - condition:
-            Comp.SetDetail: "FIS Nordic World Championships"
+            description: "Top-3 at World Championships 2025"
+            Comp.SetDetail: "FIS Nordic World Ski Championships"
             Year: 2025
             Rank:
-              interval: [1, 3]       # interval inclusive: rank between 1 and 3
+              interval: [1, 3]
             count_at_least: 1
-
-        # Condition B: Top-30 in World Cup 2025/26
+            
         - condition:
+            description: "Top-30 in World Cup 2025/2026"
             Comp.SetDetail: "FIS Cross-Country World Cup"
             Date:
-              interval: ["2025-11-01", "2026-03-31"]   # interval inclusive: date between start and end
+              interval: ["2025-08-01", "2026-01-21"]
             Rank:
-              interval: [1, 30]      # interval inclusive: rank between 1 and 30
+              interval: [1, 30]
             count_at_least: 1
     
-        # Route 2: 1x Top-10 in World Cup 2024/25 AND 1x Top-20 in World Cup 2025/26
-    - all_of:
-
-        # Condition A: Top-10 in World Cup 2024/25
-        - condition:
-            Comp.SetDetail: "FIS Cross-Country World Cup"
-            Date:
-              interval: ["2024-11-01", "2025-03-31"]   # inclusive date interval
-            Rank:
-              interval: [1, 10]                        # inclusive rank interval (Top-10)
-            count_at_least: 1
-
-        # Condition B: Top-20 in World Cup 2025/26
-        - condition:
-            Comp.SetDetail: "FIS Cross-Country World Cup"
-            Date:
-              interval: ["2025-11-01", "2026-03-31"]   # inclusive date interval
-            Rank:
-              interval: [1, 20]                        # inclusive rank interval (Top-20)
-            count_at_least: 1
-        
-        # Route 3: 1x Top-15 in World Cup 2025/26 
+    # Route 2: 1x Top-3 U23 World Championships 2025 AND 1x Top-25 World Cup 2025/2026
     - all_of:
         - condition:
+            description: "Top-3 at U23 World Championships 2025"
+            Comp.SetDetail: "FIS Nordic Under 23 World Ski Championships"
+            Year: 2025
+            Class: "Under 23"  # Special exception for this competition
+            Rank:
+              interval: [1, 3]
+            count_at_least: 1
+            
+        - condition:
+            description: "Top-25 in World Cup 2025/2026"
             Comp.SetDetail: "FIS Cross-Country World Cup"
             Date:
-              interval: ["2025-11-01", "2026-03-31"]   # inclusive date interval
+              interval: ["2025-08-01", "2026-01-21"]
             Rank:
-              interval: [1, 15]                        # inclusive rank interval (Top-15)
+              interval: [1, 25]
             count_at_least: 1
-
-    # Route 4: 2x Top-25 in World Cup 2025/26
+    
+    # Route 3: 1x Top-3 World Cup 2024/2025 AND 1x Top-25 World Cup 2025/2026
     - all_of:
         - condition:
+            description: "Top-3 in World Cup 2024/2025"
             Comp.SetDetail: "FIS Cross-Country World Cup"
             Date:
-              interval: ["2025-11-01", "2026-03-31"]   # inclusive date interval
+              interval: ["2024-11-29", "2025-07-31"]
             Rank:
-              interval: [1, 25]                        # inclusive rank interval (Top-25)
-            count_at_least: 2                          # requires two such results
-          
-    # Route 5: 1x Top-5 in Continental Cup 2025/26 AND 2x Top-30 in World Cup 2025/26 
-    - all_of:
-
-        # Condition A: Top-5 in Continental Cup 2025/26
-        - condition:
-            Comp.SetDetail: "FIS Continental Cup"
-            Date:
-              interval: ["2025-11-01", "2026-03-31"]   # inclusive date interval
-            Rank:
-              interval: [1, 5]                         # inclusive rank interval (Top-5)
+              interval: [1, 3]
             count_at_least: 1
-
-        # Condition B: 2x Top-30 in World Cup 2025/26
+            
         - condition:
+            description: "Top-25 in World Cup 2025/2026"
             Comp.SetDetail: "FIS Cross-Country World Cup"
             Date:
-              interval: ["2025-11-01", "2026-03-31"]   # inclusive date interval
+              interval: ["2025-08-01", "2026-01-21"]
             Rank:
-              interval: [1, 30]                        # inclusive rank interval (Top-30)
-            count_at_least: 2
+              interval: [1, 25]
+            count_at_least: 1
+    
+    # Route 4: 1x Top-15 World Cup 2025/2026
+    - condition:
+        description: "Top-15 in World Cup 2025/2026"
+        Comp.SetDetail: "FIS Cross-Country World Cup"
+        Date:
+          interval: ["2025-08-01", "2026-01-21"]
+        Rank:
+          interval: [1, 15]
+        count_at_least: 1
+    
+    # Route 5: 2x Top-25 World Cup 2025/2026
+    - condition:
+        description: "2x Top-25 in World Cup 2025/2026"
+        Comp.SetDetail: "FIS Cross-Country World Cup"
+        Date:
+          interval: ["2025-08-01", "2026-01-21"]
+        Rank:
+          interval: [1, 25]
+        count_at_least: 2
+    
+    # Route 6: 1x Top-3 Continental Cup 2025/2026 AND (1x Top-25 World Cup 2024/2025 OR 1x Top-25 World Cup 2025/2026)
+    - all_of:
+        - condition:
+            description: "Top-3 in Continental Cup 2025/2026"
+            Comp.SetDetail: "FESA Cross-Country Continental Cup"
+            Date:
+              interval: ["2025-08-01", "2026-01-21"]
+            Rank:
+              interval: [1, 3]
+            count_at_least: 1
+            
+        - any_of:
+            - condition:
+                description: "Top-25 in World Cup 2024/2025"
+                Comp.SetDetail: "FIS Cross-Country World Cup"
+                Date:
+                  interval: ["2024-11-29", "2025-07-31"]
+                Rank:
+                  interval: [1, 25]
+                count_at_least: 1
+                
+            - condition:
+                description: "Top-25 in World Cup 2025/2026"
+                Comp.SetDetail: "FIS Cross-Country World Cup"
+                Date:
+                  interval: ["2025-08-01", "2026-01-21"]
+                Rank:
+                  interval: [1, 25]
+                count_at_least: 1
 
-# Additional Notes:
-# - Disciplines include: Sprint, Distance (10km/15km), Skiathlon, Relay, Team Sprint
-# - Swiss Nordic has athletes like Dario Cologna (retired), Nadine Fähndrich
-# - Milano Cortina 2026: February 6-22, 2026
-# - Key venue: Val di Fiemme (Tesero) for Cross-Country events
-# - Both Classic and Freestyle techniques included
+# COMPETITION IDENTIFICATION:
+# - World Cup 2024/2025: Comp.SetDetail = "FIS Cross-Country World Cup" AND Date = 29.11.2024-31.07.2025
+# - World Cup 2025/2026: Comp.SetDetail = "FIS Cross-Country World Cup" AND Date = 01.08.2025-21.01.2026
+# - World Championships 2025: Comp.SetDetail = "FIS Nordic World Ski Championships" AND Year = 2025
+# - U23 World Championships 2025: Comp.SetDetail = "FIS Nordic Under 23 World Ski Championships" AND Year = 2025
+# - Continental Cup 2025/2026: Comp.SetDetail = "FESA Cross-Country Continental Cup" AND Date = 01.08.2025-21.01.2026

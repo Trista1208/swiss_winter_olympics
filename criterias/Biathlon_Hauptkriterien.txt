@@ -3,87 +3,92 @@ Is Olympic Discipline: "Yes"
 Class: "Seniors"
 Team Members: "No"
 
+# QUALIFICATION CRITERIA - 5 ROUTES (ANY ONE QUALIFIES)
+
 selection_paths:
   any_of:
 	
-	# Route 1: Top-3 in World Championships 2025 AND 1x Top-30 in World Cup 2025/26
+	# Route 1: 1x Top-3 World Championships 2025 AND 1x Top-30 World Cup 2025/2026
     - all_of:
-
-        # Condition A: Podium (Top-3) at World Championships 2025
         - condition:
+            description: "Top-3 at World Championships 2025"
             Comp.SetDetail: "IBU World Championships"
             Year: 2025
             Rank:
-              interval: [1, 3]       # interval inclusive: rank between 1 and 3
+              interval: [1, 3]
             count_at_least: 1
-
-        # Condition B: Top-30 in World Cup 2025/26
+            
         - condition:
+            description: "Top-30 in World Cup 2025/2026"
             Comp.SetDetail: "BMW IBU World Cup"
             Date:
-              interval: ["2025-11-01", "2026-01-18"]   # interval inclusive: date between start and end
+              interval: ["2025-11-01", "2026-01-18"]
             Rank:
-              interval: [1, 30]      # interval inclusive: rank between 1 and 30
+              interval: [1, 30]
             count_at_least: 1
     
-        # Route 2: 1x Top-6 in World Cup 2024/25 AND 1x Top-25 in World Cup 2025/26
+    # Route 2: 1x Top-6 World Cup 2024/2025 AND 1x Top-25 World Cup 2025/2026
     - all_of:
-
-        # Condition A: Top-6 in World Cup 2024/25
         - condition:
+            description: "Top-6 in World Cup 2024/2025"
             Comp.SetDetail: "BMW IBU World Cup"
             Date:
-              interval: ["2024-11-30", "2025-03-23"]   # inclusive date interval
+              interval: ["2024-11-30", "2025-03-23"]
             Rank:
-              interval: [1, 6]                         # inclusive rank interval (Top-6)
+              interval: [1, 6]
             count_at_least: 1
-
-        # Condition B: Top-25 in World Cup 2025/26 (same window as Route 1)
+            
         - condition:
+            description: "Top-25 in World Cup 2025/2026"
             Comp.SetDetail: "BMW IBU World Cup"
             Date:
-              interval: ["2025-11-01", "2026-01-18"]   # inclusive date interval
+              interval: ["2025-11-01", "2026-01-18"]
             Rank:
-              interval: [1, 25]                        # inclusive rank interval (Top-25)
+              interval: [1, 25]
             count_at_least: 1
-        
-        # Route 3: 1x Top-15 in World Cup 2025/26 
+    
+    # Route 3: 1x Top-15 World Cup 2025/2026
+    - condition:
+        description: "Top-15 in World Cup 2025/2026"
+        Comp.SetDetail: "BMW IBU World Cup"
+        Date:
+          interval: ["2025-11-01", "2026-01-18"]
+        Rank:
+          interval: [1, 15]
+        count_at_least: 1
+    
+    # Route 4: 2x Top-25 World Cup 2025/2026
+    - condition:
+        description: "2x Top-25 in World Cup 2025/2026"
+        Comp.SetDetail: "BMW IBU World Cup"
+        Date:
+          interval: ["2025-11-01", "2026-01-18"]
+        Rank:
+          interval: [1, 25]
+        count_at_least: 2
+    
+    # Route 5: 1x Top-5 IBU Cup 2025/2026 AND 2x Top-30 World Cup 2025/2026
     - all_of:
         - condition:
-            Comp.SetDetail: "BMW IBU World Cup"
-            Date:
-              interval: ["2025-11-01", "2026-01-18"]   # inclusive date interval
-            Rank:
-              interval: [1, 15]                        # inclusive rank interval (Top-15)
-            count_at_least: 1
-
-    # Route 4: 2x Top-25 in World Cup 2025/26
-    - all_of:
-        - condition:
-            Comp.SetDetail: "BMW IBU World Cup"
-            Date:
-              interval: ["2025-11-01", "2026-01-18"]   # inclusive date interval
-            Rank:
-              interval: [1, 25]                        # inclusive rank interval (Top-25)
-            count_at_least: 2                          # requires two such results
-          
-    # Route 5: 1x Top-5 in IBU Cup 2025/26 AND 2x Top-30 in World Cup 2025/26 
-    - all_of:
-
-        # Condition A: Top-5 in IBU Cup 2025/26
-        - condition:
+            description: "Top-5 in IBU Cup 2025/2026"
             Comp.SetDetail: "IBU Cup"
             Date:
-              interval: ["2025-11-01", "2026-01-18"]   # inclusive date interval
+              interval: ["2025-11-01", "2026-01-18"]
             Rank:
-              interval: [1, 5]                         # inclusive rank interval (Top-5)
+              interval: [1, 5]
             count_at_least: 1
-
-        # Condition B: 2x Top-30 in World Cup 2025/26
+            
         - condition:
+            description: "2x Top-30 in World Cup 2025/2026"
             Comp.SetDetail: "BMW IBU World Cup"
             Date:
-              interval: ["2025-11-01", "2026-01-18"]   # inclusive date interval
+              interval: ["2025-11-01", "2026-01-18"]
             Rank:
-              interval: [1, 30]                        # inclusive rank interval (Top-30)
+              interval: [1, 30]
             count_at_least: 2
+
+# COMPETITION IDENTIFICATION:
+# - World Championships 2025: Comp.SetDetail = "IBU World Championships" AND Year = 2025
+# - World Cup 2024/2025: Comp.SetDetail = "BMW IBU World Cup" AND Date = 30.11.2024-23.03.2025  
+# - World Cup 2025/2026: Comp.SetDetail = "BMW IBU World Cup" AND Date = 01.11.2025-18.01.2026
+# - IBU Cup 2025/2026: Comp.SetDetail = "IBU Cup" AND Date = 01.11.2025-18.01.2026

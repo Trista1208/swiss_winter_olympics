@@ -1,97 +1,84 @@
 Sport: "Bobsleigh"
 Is Olympic Discipline: "Yes"
 Class: "Seniors"
-Team Members: "Yes"  # 2-man, 4-man, 2-woman teams
+Team Members: "No" # Individual results count, but team verification required for 2-Man/4-Man
+
+# SPECIAL TEAM VERIFICATION REQUIREMENT:
+# For 2-Man and 4-Man disciplines, must verify that the whole team (Team Members = Yes) 
+# can run for Switzerland (Country = Switzerland). Match using Date, Comp.SetDetail, 
+# Discipline, Gender, and Rank.
+
+# QUALIFICATION CRITERIA - 3 ROUTES (ANY ONE QUALIFIES)
 
 selection_paths:
   any_of:
 	
-	# Route 1: Top-3 in World Championships 2025 AND 1x Top-15 in World Cup 2025/26
+	# Route 1: 1x Top-6 World Cup 2025/2026 AND one of the following sub-conditions
     - all_of:
-
-        # Condition A: Podium (Top-3) at World Championships 2025
         - condition:
-            Comp.SetDetail: "IBSF World Championships"
-            Year: 2025
-            Rank:
-              interval: [1, 3]       # interval inclusive: rank between 1 and 3
-            count_at_least: 1
-
-        # Condition B: Top-15 in World Cup 2025/26
-        - condition:
+            description: "Top-6 in World Cup 2025/2026"
             Comp.SetDetail: "IBSF World Cup"
             Date:
-              interval: ["2025-11-01", "2026-02-15"]   # interval inclusive: date between start and end
+              interval: ["2025-11-01", "2026-01-18"]
             Rank:
-              interval: [1, 15]      # interval inclusive: rank between 1 and 15
+              interval: [1, 6]
             count_at_least: 1
+            
+        - any_of:
+            - condition:
+                description: "Top-6 at World Championships 2025"
+                Comp.SetDetail: "IBSF World Championships"
+                Year: 2025
+                Rank:
+                  interval: [1, 6]
+                count_at_least: 1
+                
+            - condition:
+                description: "Top-6 in World Cup Lillehammer 2024/2025"
+                Comp.SetDetail: "IBSF World Cup"
+                Date:
+                  interval: ["2025-02-03", "2025-02-09"]
+                Host City: "Lillehammer"
+                Rank:
+                  interval: [1, 6]
+                count_at_least: 1
     
-        # Route 2: 1x Top-8 in World Cup 2024/25 AND 1x Top-12 in World Cup 2025/26
-    - all_of:
-
-        # Condition A: Top-8 in World Cup 2024/25
-        - condition:
-            Comp.SetDetail: "IBSF World Cup"
-            Date:
-              interval: ["2024-11-01", "2025-03-15"]   # inclusive date interval
-            Rank:
-              interval: [1, 8]                         # inclusive rank interval (Top-8)
-            count_at_least: 1
-
-        # Condition B: Top-12 in World Cup 2025/26
-        - condition:
-            Comp.SetDetail: "IBSF World Cup"
-            Date:
-              interval: ["2025-11-01", "2026-02-15"]   # inclusive date interval
-            Rank:
-              interval: [1, 12]                        # inclusive rank interval (Top-12)
-            count_at_least: 1
-        
-        # Route 3: 1x Top-10 in World Cup 2025/26 
+    # Route 2: 2x Top-12 World Cup 2025/2026
+    # NOTE: Requires verification of commitment until 2030 - indicate with color/comment
+    - condition:
+        description: "2x Top-12 in World Cup 2025/2026 (requires commitment until 2030)"
+        Comp.SetDetail: "IBSF World Cup"
+        Date:
+          interval: ["2025-11-01", "2026-01-18"]
+        Rank:
+          interval: [1, 12]
+        count_at_least: 2
+        special_note: "COMMITMENT_2030_REQUIRED"
+    
+    # Route 3: 2x Top-14 World Cup 2025/2026 AND Age <= 27
     - all_of:
         - condition:
+            description: "2x Top-14 in World Cup 2025/2026"
             Comp.SetDetail: "IBSF World Cup"
             Date:
-              interval: ["2025-11-01", "2026-02-15"]   # inclusive date interval
+              interval: ["2025-11-01", "2026-01-18"]
             Rank:
-              interval: [1, 10]                        # inclusive rank interval (Top-10)
-            count_at_least: 1
-
-    # Route 4: 2x Top-15 in World Cup 2025/26
-    - all_of:
-        - condition:
-            Comp.SetDetail: "IBSF World Cup"
-            Date:
-              interval: ["2025-11-01", "2026-02-15"]   # inclusive date interval
-            Rank:
-              interval: [1, 15]                        # inclusive rank interval (Top-15)
-            count_at_least: 2                          # requires two such results
-          
-    # Route 5: 1x Top-3 in Europa Cup 2025/26 AND 2x Top-20 in World Cup 2025/26 
-    - all_of:
-
-        # Condition A: Top-3 in Europa Cup 2025/26
-        - condition:
-            Comp.SetDetail: "IBSF Europa Cup"
-            Date:
-              interval: ["2025-11-01", "2026-02-15"]   # inclusive date interval
-            Rank:
-              interval: [1, 3]                         # inclusive rank interval (Top-3)
-            count_at_least: 1
-
-        # Condition B: 2x Top-20 in World Cup 2025/26
-        - condition:
-            Comp.SetDetail: "IBSF World Cup"
-            Date:
-              interval: ["2025-11-01", "2026-02-15"]   # inclusive date interval
-            Rank:
-              interval: [1, 20]                        # inclusive rank interval (Top-20)
+              interval: [1, 14]
             count_at_least: 2
+            
+        - condition:
+            description: "Age 27 or younger"
+            Age:
+              max: 27
 
-# Additional Notes:
-# - Disciplines include: 2-man, 4-man, 2-woman, Monobob (women)
-# - Swiss Bobsleigh has strong tradition with pilots and brakemen
-# - Milano Cortina 2026: February 6-22, 2026
-# - Key venue: Cortina d'Ampezzo sliding track (Eugenio Monti track)
-# - Team sport requiring coordination between pilot and brakeman/crew
-# - Speed sport with runs reaching 140+ km/h
+# TEAM VERIFICATION LOGIC:
+# For disciplines "2-Man" and "4-Man":
+# 1. Find individual result (Team Members = No)
+# 2. Find corresponding team result (Team Members = Yes) with same Date, Comp.SetDetail, Discipline, Gender, Rank
+# 3. Verify team result has Country = "Switzerland"
+# 4. Only count qualification if team verification passes
+
+# COMPETITION IDENTIFICATION:
+# - World Championships 2024/2025: Comp.SetDetail = "IBSF World Championships" AND Year = 2025
+# - World Cup Lillehammer 2024/2025: Comp.SetDetail = "IBSF World Cup" AND Date = 03.02.2025-09.02.2025, Host City = "Lillehammer"
+# - World Cup 2025/2026: Comp.SetDetail = "IBSF World Cup" AND Date = 01.11.2025-18.01.2026
