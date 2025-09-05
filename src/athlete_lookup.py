@@ -12,8 +12,6 @@ from datetime import datetime
 import numpy as np
 
 # Import our analysis modules
-from biathlon_analysis import main as load_data
-from qualification_checker import BiathlonQualificationChecker
 from multi_sport_qualification_checker import MultiSportQualificationChecker
 
 # Configure page

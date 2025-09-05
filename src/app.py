@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+ate #!/usr/bin/env python3
 """
 Swiss Olympic Multi-Sport Team Selection Dashboard - Interactive Search & Filter Version
 Search athletes by name, filter by sport and gender, view qualification status

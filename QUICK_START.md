@@ -20,7 +20,7 @@ python scripts/run_lookup.py
 
 ### **3. Command-Line Analysis**
 ```bash
-python scripts/run_analysis.py
+python src/multi_sport_analysis.py
 ```
 - **Output**: Terminal-based comprehensive analysis
 - **Shows**: All qualified athletes across all 6 sports
